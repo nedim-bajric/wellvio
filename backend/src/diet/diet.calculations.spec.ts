@@ -2,6 +2,7 @@ import {
   calculateBMR,
   calculateTDEE,
   generatePlan,
+  generatePlanOptions,
   checkFeasibility,
   scaleNutrients,
   daysBetween,
@@ -160,6 +161,85 @@ describe('generatePlan', () => {
     const plan = generatePlan(p);
 
     expect(plan.rate).toBe('mild');
+  });
+});
+
+describe('generatePlanOptions', () => {
+  it('returns three safe options ordered mild to aggressive', () => {
+    const p = profile({
+      currentWeightKg: 100,
+      goalWeightKg: 90,
+      targetDate: daysFromNow(180),
+    });
+    const options = generatePlanOptions(p);
+
+    expect(options).toHaveLength(3);
+    expect(options.map((o) => o.rate)).toEqual([
+      'mild',
+      'moderate',
+      'aggressive',
+    ]);
+    expect(options.every((o) => o.safe)).toBe(true);
+  });
+
+  it('returns options with increasing deficits and decreasing calories', () => {
+    const p = profile({
+      currentWeightKg: 100,
+      goalWeightKg: 90,
+      targetDate: daysFromNow(180),
+    });
+    const options = generatePlanOptions(p);
+
+    expect(options[0].dailyDeficit).toBeLessThan(options[1].dailyDeficit);
+    expect(options[1].dailyDeficit).toBeLessThan(options[2].dailyDeficit);
+    expect(options[0].targetCalories).toBeGreaterThan(
+      options[1].targetCalories,
+    );
+    expect(options[1].targetCalories).toBeGreaterThan(
+      options[2].targetCalories,
+    );
+  });
+
+  it('drops aggressive options that fall below the safety floor', () => {
+    const p = profile({
+      gender: 'female',
+      age: 30,
+      heightCm: 165,
+      currentWeightKg: 55,
+      goalWeightKg: 50,
+      activityLevel: 'sedentary',
+      targetDate: daysFromNow(90),
+    });
+    const options = generatePlanOptions(p);
+
+    expect(options.length).toBeGreaterThanOrEqual(2);
+    expect(options.every((o) => o.targetCalories >= 1200)).toBe(true);
+    expect(options.every((o) => o.safe)).toBe(true);
+  });
+
+  it('computes days to target from the chosen deficit', () => {
+    const p = profile({
+      currentWeightKg: 90,
+      goalWeightKg: 85,
+      targetDate: daysFromNow(180),
+    });
+    const options = generatePlanOptions(p);
+
+    options.forEach((option) => {
+      expect(option.daysToTarget).toBeGreaterThan(0);
+    });
+  });
+
+  it('returns zero days to target for weight-gain targets', () => {
+    const p = profile({
+      currentWeightKg: 70,
+      goalWeightKg: 75,
+      targetDate: daysFromNow(60),
+    });
+    const options = generatePlanOptions(p);
+
+    expect(options.length).toBeGreaterThan(0);
+    expect(options.every((o) => o.daysToTarget === 0)).toBe(true);
   });
 });
 

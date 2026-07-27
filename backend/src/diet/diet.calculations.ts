@@ -186,3 +186,42 @@ export function scaleNutrients(per100g: Nutrients, grams: number): Nutrients {
     fat: roundToOneDecimal(per100g.fat * factor),
   };
 }
+
+const PLAN_DEFICIT_RATIOS: { rate: PlanRate; ratio: number }[] = [
+  { rate: 'mild', ratio: 0.15 },
+  { rate: 'moderate', ratio: 0.2 },
+  { rate: 'aggressive', ratio: 0.25 },
+];
+
+export function generatePlanOptions(profile: UserProfile): Plan[] {
+  const tdee = calculateTDEE(profile);
+  const floor = SAFETY_FLOORS[profile.gender];
+  const weightDeltaKg = profile.currentWeightKg - profile.goalWeightKg;
+
+  return PLAN_DEFICIT_RATIOS.map(({ rate, ratio }) => {
+    let targetCalories = tdee * (1 - ratio);
+    let safe = true;
+
+    // The safety floor only applies to weight-loss plans; weight-gain or
+    // maintenance targets are not constrained by the under-eating floor.
+    if (weightDeltaKg > 0 && targetCalories < floor) {
+      targetCalories = floor;
+      safe = false;
+    }
+
+    const dailyDeficit = tdee - targetCalories;
+    const daysToTarget =
+      weightDeltaKg > 0 && dailyDeficit > 0
+        ? Math.ceil((weightDeltaKg * KCAL_PER_KG_FAT) / dailyDeficit)
+        : 0;
+
+    return {
+      targetCalories: Math.round(targetCalories),
+      targetNutrients: calculateMacroTargets(targetCalories),
+      dailyDeficit: roundToOneDecimal(dailyDeficit),
+      daysToTarget,
+      rate,
+      safe,
+    };
+  }).filter((plan) => plan.safe);
+}

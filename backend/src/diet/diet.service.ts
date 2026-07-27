@@ -3,6 +3,7 @@ import {
   calculateBMR,
   calculateTDEE,
   generatePlan,
+  generatePlanOptions,
   checkFeasibility,
   scaleNutrients,
 } from './diet.calculations.js';
@@ -25,6 +26,10 @@ export class DietService {
 
   generatePlan(profile: UserProfile): Plan {
     return generatePlan(profile);
+  }
+
+  generatePlanOptions(profile: UserProfile): Plan[] {
+    return generatePlanOptions(profile);
   }
 
   checkFeasibility(profile: UserProfile): FeasibilityResult {
