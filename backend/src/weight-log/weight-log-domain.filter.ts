@@ -5,11 +5,25 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { ActivePlanRequiredError } from './weight-log-domain.error.js';
+import {
+  ActivePlanRequiredError,
+  AdjustmentRateMismatchError,
+  InsufficientDataForAdjustmentError,
+} from './weight-log-domain.error.js';
 
-@Catch(ActivePlanRequiredError)
+@Catch(
+  ActivePlanRequiredError,
+  InsufficientDataForAdjustmentError,
+  AdjustmentRateMismatchError,
+)
 export class ActivePlanRequiredFilter implements ExceptionFilter {
-  catch(exception: ActivePlanRequiredError, host: ArgumentsHost) {
+  catch(
+    exception:
+      | ActivePlanRequiredError
+      | InsufficientDataForAdjustmentError
+      | AdjustmentRateMismatchError,
+    host: ArgumentsHost,
+  ) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     response.status(HttpStatus.BAD_REQUEST).json({

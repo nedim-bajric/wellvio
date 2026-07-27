@@ -3,8 +3,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from './../src/app.module';
-import type { PlanOption } from './../src/onboarding/onboarding.types';
+import { AppModule } from './../src/app.module.js';
+import type { PlanOption } from './../src/onboarding/onboarding.types.js';
 
 function daysFromNow(days: number): Date {
   return new Date(Date.now() + days * 24 * 60 * 60 * 1000);

@@ -20,7 +20,7 @@ import type {
   WeightLog,
   WeightTrendAnalysis,
 } from './weight-log.types.js';
-import { Plan } from '../onboarding/onboarding.types.js';
+import type { Plan } from '../onboarding/onboarding.types.js';
 
 class ApplyAdjustmentDto {
   rate: Plan['rate'];

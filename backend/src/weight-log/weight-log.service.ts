@@ -1,17 +1,25 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { OnboardingService } from '../onboarding/onboarding.service.js';
-import { KCAL_PER_KG_FAT } from '../diet/diet.calculations.js';
+import {
+  KCAL_PER_KG_FAT,
+  roundToOneDecimal,
+} from '../diet/diet.calculations.js';
 import { startOfDayUtc } from '../common/date.util.js';
 import { WEIGHT_LOG_REPOSITORY } from './weight-log.repository.js';
 import type { WeightLogRepository } from './weight-log.repository.js';
 import { WeightLogNotFoundError } from './weight-log-not-found.error.js';
-import { ActivePlanRequiredError } from './weight-log-domain.error.js';
+import {
+  ActivePlanRequiredError,
+  AdjustmentRateMismatchError,
+  InsufficientDataForAdjustmentError,
+} from './weight-log-domain.error.js';
 import {
   CreateWeightLogData,
   PlanAdjustmentSuggestion,
   SuggestedPlan,
   UpdateWeightLogData,
   WeightLog,
+  WeightTrend,
   WeightTrendAnalysis,
 } from './weight-log.types.js';
 import { Plan, PlanOption } from '../onboarding/onboarding.types.js';
@@ -19,13 +27,9 @@ import { Plan, PlanOption } from '../onboarding/onboarding.types.js';
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const TREND_TOLERANCE_KG_PER_WEEK = 0.1;
 
-function daysBetween(start: Date, end: Date): number {
+function daysBetweenUtc(start: Date, end: Date): number {
   const diff = startOfDayUtc(end).getTime() - startOfDayUtc(start).getTime();
   return Math.max(1, Math.round(diff / MS_PER_DAY));
-}
-
-function roundToOneDecimal(value: number): number {
-  return Math.round(value * 10) / 10;
 }
 
 @Injectable()
@@ -77,7 +81,7 @@ export class WeightLogService {
   }
 
   async analyzeTrend(userId: string): Promise<WeightTrendAnalysis> {
-    const entries = await this.sortedEntries(userId);
+    const entries = await this.chronologicalEntries(userId);
     const activePlan = await this.onboardingService.getActivePlan(userId);
 
     if (entries.length < 2 || !activePlan) {
@@ -94,19 +98,16 @@ export class WeightLogService {
 
     const earliest = entries[0];
     const latest = entries[entries.length - 1];
-    const daysTracked = daysBetween(earliest.loggedAt, latest.loggedAt);
+    const daysTracked = daysBetweenUtc(earliest.loggedAt, latest.loggedAt);
     const actualDailyChangeKg =
       (latest.weightKg - earliest.weightKg) / daysTracked;
     const actualWeeklyChangeKg = roundToOneDecimal(actualDailyChangeKg * 7);
     const plannedWeeklyChangeKg = this.plannedWeeklyChange(activePlan);
 
-    const diff = actualWeeklyChangeKg - plannedWeeklyChangeKg;
-    let trend: WeightTrendAnalysis['trend'] = 'onTrack';
-    if (diff < -TREND_TOLERANCE_KG_PER_WEEK) {
-      trend = 'ahead';
-    } else if (diff > TREND_TOLERANCE_KG_PER_WEEK) {
-      trend = 'behind';
-    }
+    const trend = this.classifyTrend(
+      actualWeeklyChangeKg,
+      plannedWeeklyChangeKg,
+    );
 
     return {
       latestWeightKg: latest.weightKg,
@@ -119,9 +120,12 @@ export class WeightLogService {
     };
   }
 
-  async suggestAdjustment(userId: string): Promise<PlanAdjustmentSuggestion> {
-    const trendAnalysis = await this.analyzeTrend(userId);
-    const activePlan = await this.requireActivePlan(userId);
+  async suggestAdjustment(
+    userId: string,
+  ): Promise<PlanAdjustmentSuggestion> {
+    const { entries, activePlan, trend } = await this.analyzeTrendWithPlan(
+      userId,
+    );
 
     const currentPlan: SuggestedPlan = {
       rate: activePlan.rate,
@@ -129,7 +133,7 @@ export class WeightLogService {
       targetNutrients: activePlan.targetNutrients,
     };
 
-    if (trendAnalysis.trend === 'insufficientData') {
+    if (entries.length < 2 || trend === 'insufficientData') {
       return {
         currentPlan,
         suggestedPlan: null,
@@ -139,7 +143,7 @@ export class WeightLogService {
       };
     }
 
-    if (trendAnalysis.trend === 'onTrack') {
+    if (trend === 'onTrack') {
       return {
         currentPlan,
         suggestedPlan: null,
@@ -150,26 +154,15 @@ export class WeightLogService {
 
     const { options } = await this.onboardingService.getPlanOptionsAtWeight(
       userId,
-      trendAnalysis.latestWeightKg,
+      entries[entries.length - 1].weightKg,
     );
 
-    const suggestedRate = this.pickSuggestedRate(
+    const suggestedOption = this.pickSuggestedOption(
       activePlan.rate,
-      trendAnalysis.trend,
+      trend,
       options,
     );
 
-    if (!suggestedRate) {
-      return {
-        currentPlan,
-        suggestedPlan: null,
-        reason:
-          'No safe adjustment is available at your current weight. Consider updating your target date.',
-        requiresApproval: true,
-      };
-    }
-
-    const suggestedOption = options.find((o) => o.rate === suggestedRate);
     if (!suggestedOption) {
       return {
         currentPlan,
@@ -180,10 +173,13 @@ export class WeightLogService {
       };
     }
 
-    const reason =
-      trendAnalysis.trend === 'behind'
-        ? `You're losing weight slower than planned (${trendAnalysis.actualWeeklyChangeKg} kg/week vs ${trendAnalysis.plannedWeeklyChangeKg} kg/week). A more aggressive plan is suggested.`
-        : `You're losing weight faster than planned (${trendAnalysis.actualWeeklyChangeKg} kg/week vs ${trendAnalysis.plannedWeeklyChangeKg} kg/week). A milder plan is suggested.`;
+    const reason = this.buildSuggestionReason(
+      trend,
+      entries[entries.length - 1].weightKg,
+      entries[0].weightKg,
+      daysBetweenUtc(entries[0].loggedAt, entries[entries.length - 1].loggedAt),
+      suggestedOption,
+    );
 
     return {
       currentPlan,
@@ -201,66 +197,130 @@ export class WeightLogService {
     userId: string,
     rate: PlanOption['rate'],
   ): Promise<Plan> {
-    const trendAnalysis = await this.analyzeTrend(userId);
-    if (trendAnalysis.trend === 'insufficientData') {
-      throw new ActivePlanRequiredError();
+    const { entries, trend } = await this.analyzeTrendWithPlan(userId);
+
+    if (entries.length < 2 || trend === 'insufficientData') {
+      throw new InsufficientDataForAdjustmentError();
     }
 
-    await this.requireActivePlan(userId);
-    await this.onboardingService.updateCurrentWeight(
-      userId,
-      trendAnalysis.latestWeightKg,
-    );
+    const latestWeight = entries[entries.length - 1].weightKg;
+    const suggestion = await this.suggestAdjustment(userId);
+
+    if (!suggestion.suggestedPlan || suggestion.suggestedPlan.rate !== rate) {
+      throw new AdjustmentRateMismatchError(rate);
+    }
+
+    await this.onboardingService.updateCurrentWeight(userId, latestWeight);
     return this.onboardingService.activatePlan(userId, rate);
   }
 
-  private async sortedEntries(userId: string): Promise<WeightLog[]> {
+  private async chronologicalEntries(userId: string): Promise<WeightLog[]> {
     const entries = await this.repository.findAllByUserId(userId);
     return [...entries].sort(
       (a, b) => a.loggedAt.getTime() - b.loggedAt.getTime(),
     );
   }
 
-  private plannedWeeklyChange(activePlan: Plan | null): number {
-    if (!activePlan) return 0;
-    return roundToOneDecimal((-activePlan.dailyDeficit * 7) / KCAL_PER_KG_FAT);
-  }
-
-  private async requireActivePlan(userId: string): Promise<Plan> {
+  private async analyzeTrendWithPlan(userId: string): Promise<{
+    entries: WeightLog[];
+    activePlan: Plan;
+    trend: WeightTrend;
+  }> {
+    const entries = await this.chronologicalEntries(userId);
     const activePlan = await this.onboardingService.getActivePlan(userId);
     if (!activePlan) {
       throw new ActivePlanRequiredError();
     }
-    return activePlan;
+
+    if (entries.length < 2) {
+      return { entries, activePlan, trend: 'insufficientData' };
+    }
+
+    const earliest = entries[0];
+    const latest = entries[entries.length - 1];
+    const daysTracked = daysBetweenUtc(earliest.loggedAt, latest.loggedAt);
+    const actualDailyChangeKg =
+      (latest.weightKg - earliest.weightKg) / daysTracked;
+    const actualWeeklyChangeKg = roundToOneDecimal(actualDailyChangeKg * 7);
+    const plannedWeeklyChangeKg = this.plannedWeeklyChange(activePlan);
+
+    return {
+      entries,
+      activePlan,
+      trend: this.classifyTrend(actualWeeklyChangeKg, plannedWeeklyChangeKg),
+    };
   }
 
-  private pickSuggestedRate(
-    currentRate: PlanOption['rate'],
-    trend: 'ahead' | 'behind' | 'onTrack' | 'insufficientData',
-    options: PlanOption[],
-  ): PlanOption['rate'] | null {
-    if (trend !== 'ahead' && trend !== 'behind') return null;
+  private classifyTrend(
+    actualWeeklyChangeKg: number,
+    plannedWeeklyChangeKg: number,
+  ): WeightTrend {
+    const diff = actualWeeklyChangeKg - plannedWeeklyChangeKg;
+    if (diff < -TREND_TOLERANCE_KG_PER_WEEK) {
+      return 'ahead';
+    }
+    if (diff > TREND_TOLERANCE_KG_PER_WEEK) {
+      return 'behind';
+    }
+    return 'onTrack';
+  }
 
+  private plannedWeeklyChange(activePlan: Plan | null): number {
+    if (!activePlan) return 0;
+    return roundToOneDecimal(
+      (-activePlan.dailyDeficit * 7) / KCAL_PER_KG_FAT,
+    );
+  }
+
+  private pickSuggestedOption(
+    currentRate: PlanOption['rate'],
+    trend: Exclude<WeightTrend, 'insufficientData' | 'onTrack'>,
+    options: PlanOption[],
+  ): PlanOption | null {
     const rateOrder: PlanOption['rate'][] = ['mild', 'moderate', 'aggressive'];
     const currentIndex = rateOrder.indexOf(currentRate);
     const direction = trend === 'behind' ? 1 : -1;
-    let targetIndex = currentIndex + direction;
-    targetIndex = Math.max(0, Math.min(rateOrder.length - 1, targetIndex));
+    const targetIndex = Math.max(
+      0,
+      Math.min(rateOrder.length - 1, currentIndex + direction),
+    );
 
     for (let offset = 0; offset < rateOrder.length; offset++) {
-      const higher = targetIndex + offset;
+      const higherIndex = targetIndex + offset;
       if (
-        higher < rateOrder.length &&
-        options.some((o) => o.rate === rateOrder[higher])
+        higherIndex < rateOrder.length &&
+        options.some((o) => o.rate === rateOrder[higherIndex])
       ) {
-        return rateOrder[higher];
+        return options.find((o) => o.rate === rateOrder[higherIndex]) ?? null;
       }
-      const lower = targetIndex - offset;
-      if (lower >= 0 && options.some((o) => o.rate === rateOrder[lower])) {
-        return rateOrder[lower];
+      const lowerIndex = targetIndex - offset;
+      if (
+        lowerIndex >= 0 &&
+        options.some((o) => o.rate === rateOrder[lowerIndex])
+      ) {
+        return options.find((o) => o.rate === rateOrder[lowerIndex]) ?? null;
       }
     }
 
     return null;
+  }
+
+  private buildSuggestionReason(
+    trend: Exclude<WeightTrend, 'insufficientData' | 'onTrack'>,
+    latestWeightKg: number,
+    earliestWeightKg: number,
+    daysTracked: number,
+    suggestedOption: PlanOption,
+  ): string {
+    const totalChangeKg = roundToOneDecimal(latestWeightKg - earliestWeightKg);
+    const averageWeeklyChangeKg = roundToOneDecimal(
+      (totalChangeKg / daysTracked) * 7,
+    );
+
+    if (trend === 'behind') {
+      return `You're losing weight slower than planned (${averageWeeklyChangeKg} kg/week). A more aggressive ${suggestedOption.rate} plan (${suggestedOption.targetCalories} kcal/day) is suggested.`;
+    }
+
+    return `You're losing weight faster than planned (${averageWeeklyChangeKg} kg/week). A milder ${suggestedOption.rate} plan (${suggestedOption.targetCalories} kcal/day) is suggested.`;
   }
 }

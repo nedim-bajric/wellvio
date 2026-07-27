@@ -3,7 +3,11 @@ import { WeightLogService } from './weight-log.service.js';
 import { WEIGHT_LOG_REPOSITORY } from './weight-log.repository.js';
 import { OnboardingService } from '../onboarding/onboarding.service.js';
 import { WeightLogNotFoundError } from './weight-log-not-found.error.js';
-import { ActivePlanRequiredError } from './weight-log-domain.error.js';
+import {
+  ActivePlanRequiredError,
+  AdjustmentRateMismatchError,
+  InsufficientDataForAdjustmentError,
+} from './weight-log-domain.error.js';
 import type { WeightLogRepository } from './weight-log.repository.js';
 import type { WeightLog } from './weight-log.types.js';
 import type { Plan } from '../onboarding/onboarding.types.js';
@@ -412,6 +416,15 @@ describe('WeightLogService', () => {
       jest
         .spyOn(onboardingService, 'activatePlan')
         .mockResolvedValue(activatedPlan);
+      jest
+        .spyOn(onboardingService, 'getPlanOptionsAtWeight')
+        .mockResolvedValue({
+          options: [
+            planOption('mild', 2200),
+            planOption('moderate', 2000),
+            planOption('aggressive', 1800),
+          ],
+        });
 
       const result = await service.applyAdjustment(userId, 'aggressive');
 
@@ -426,6 +439,37 @@ describe('WeightLogService', () => {
       expect(result.rate).toBe('aggressive');
     });
 
+    it('throws when the requested rate does not match the suggestion', async () => {
+      jest.spyOn(repository, 'findAllByUserId').mockResolvedValue([
+        makeEntry({
+          id: 'w1',
+          weightKg: 80,
+          loggedAt: new Date('2026-07-13T08:00:00Z'),
+        }),
+        makeEntry({
+          id: 'w2',
+          weightKg: 79.5,
+          loggedAt: new Date('2026-07-27T08:00:00Z'),
+        }),
+      ]);
+      jest
+        .spyOn(onboardingService, 'getActivePlan')
+        .mockResolvedValue(activePlan);
+      jest
+        .spyOn(onboardingService, 'getPlanOptionsAtWeight')
+        .mockResolvedValue({
+          options: [
+            planOption('mild', 2200),
+            planOption('moderate', 2000),
+            planOption('aggressive', 1800),
+          ],
+        });
+
+      await expect(service.applyAdjustment(userId, 'mild')).rejects.toThrow(
+        AdjustmentRateMismatchError,
+      );
+    });
+
     it('throws when there is no active plan', async () => {
       jest
         .spyOn(repository, 'findAllByUserId')
@@ -434,6 +478,19 @@ describe('WeightLogService', () => {
 
       await expect(service.applyAdjustment(userId, 'moderate')).rejects.toThrow(
         ActivePlanRequiredError,
+      );
+    });
+
+    it('throws when trend data is insufficient', async () => {
+      jest
+        .spyOn(repository, 'findAllByUserId')
+        .mockResolvedValue([makeEntry()]);
+      jest
+        .spyOn(onboardingService, 'getActivePlan')
+        .mockResolvedValue(activePlan);
+
+      await expect(service.applyAdjustment(userId, 'moderate')).rejects.toThrow(
+        InsufficientDataForAdjustmentError,
       );
     });
   });

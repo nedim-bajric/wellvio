@@ -45,20 +45,7 @@ export class OnboardingService {
 
   async getPlanOptions(userId: string): Promise<PlanOptionsResult> {
     const { userProfile } = await this.requireProfileWithInputs(userId);
-    this.requireFeasible(userProfile);
-
-    const options: PlanOption[] = this.dietService
-      .generatePlanOptions(userProfile)
-      .map((plan) => ({
-        rate: plan.rate,
-        targetCalories: plan.targetCalories,
-        targetNutrients: plan.targetNutrients,
-        dailyDeficit: plan.dailyDeficit,
-        daysToTarget: plan.daysToTarget,
-        safe: plan.safe,
-      }));
-
-    return { options };
+    return this.buildPlanOptionsResult(userProfile);
   }
 
   async activatePlan(userId: string, rate: PlanOption['rate']): Promise<Plan> {
@@ -105,21 +92,10 @@ export class OnboardingService {
     currentWeightKg: number,
   ): Promise<PlanOptionsResult> {
     const { userProfile } = await this.requireProfileWithInputs(userId);
-    const adjustedProfile = { ...userProfile, currentWeightKg };
-    this.requireFeasible(adjustedProfile);
-
-    const options: PlanOption[] = this.dietService
-      .generatePlanOptions(adjustedProfile)
-      .map((plan) => ({
-        rate: plan.rate,
-        targetCalories: plan.targetCalories,
-        targetNutrients: plan.targetNutrients,
-        dailyDeficit: plan.dailyDeficit,
-        daysToTarget: plan.daysToTarget,
-        safe: plan.safe,
-      }));
-
-    return { options };
+    return this.buildPlanOptionsResult({
+      ...userProfile,
+      currentWeightKg,
+    });
   }
 
   async updateCurrentWeight(
@@ -131,6 +107,25 @@ export class OnboardingService {
       throw new ProfileNotFoundError(userId);
     }
     return this.profileRepository.update(userId, { currentWeightKg });
+  }
+
+  private buildPlanOptionsResult(
+    userProfile: UserProfile,
+  ): PlanOptionsResult {
+    this.requireFeasible(userProfile);
+
+    const options: PlanOption[] = this.dietService
+      .generatePlanOptions(userProfile)
+      .map((plan) => ({
+        rate: plan.rate,
+        targetCalories: plan.targetCalories,
+        targetNutrients: plan.targetNutrients,
+        dailyDeficit: plan.dailyDeficit,
+        daysToTarget: plan.daysToTarget,
+        safe: plan.safe,
+      }));
+
+    return { options };
   }
 
   private async requireProfileWithInputs(
