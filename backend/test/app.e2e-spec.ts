@@ -1,3 +1,6 @@
+// Explicitly load the platform adapter so Jest can resolve it when
+// createNestApplication() loads it dynamically from the test directory.
+import '@nestjs/platform-express';
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
