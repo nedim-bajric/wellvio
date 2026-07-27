@@ -1,6 +1,7 @@
 import { API_BASE_URL } from '../constants/api.js';
 
-const USER_ID = 'mobile-user';
+// TODO: replace with authenticated user id once mobile auth is implemented.
+const USER_ID = process.env.EXPO_PUBLIC_USER_ID ?? 'mobile-user';
 
 async function request<T>(
   path: string,
@@ -21,6 +22,12 @@ async function request<T>(
     throw new Error(`HTTP ${response.status}: ${body}`);
   }
 
+  const contentLength = response.headers.get('content-length');
+  const hasBody = contentLength ? parseInt(contentLength, 10) > 0 : false;
+  if (!hasBody || response.status === 204) {
+    return undefined as T;
+  }
+
   return response.json() as Promise<T>;
 }
 
@@ -30,5 +37,5 @@ export const apiClient = {
     request<T>(path, { method: 'POST', body: JSON.stringify(body) }),
   patch: <T>(path: string, body: unknown) =>
     request<T>(path, { method: 'PATCH', body: JSON.stringify(body) }),
-  delete: (path: string) => request<unknown>(path, { method: 'DELETE' }),
+  delete: (path: string) => request<void>(path, { method: 'DELETE' }),
 };

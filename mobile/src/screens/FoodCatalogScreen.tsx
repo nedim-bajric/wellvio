@@ -11,6 +11,7 @@ import {
 import { foodApi } from '../api/foodApi.js';
 import { FoodForm } from '../components/FoodForm.js';
 import { FoodListItem } from '../components/FoodListItem.js';
+import { getErrorMessage } from '../utils/errorMessage.js';
 import type { CreateFoodData, Food, UpdateFoodData } from '../types/food.js';
 
 export function FoodCatalogScreen() {
@@ -27,7 +28,7 @@ export function FoodCatalogScreen() {
       const items = await foodApi.list();
       setFoods(items);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load foods');
+      setError(getErrorMessage(err, 'Failed to load foods'));
     } finally {
       setLoading(false);
     }
@@ -43,7 +44,7 @@ export function FoodCatalogScreen() {
       setFoods((prev) => [...prev, created]);
       setShowForm(false);
     } catch (err) {
-      Alert.alert('Error', err instanceof Error ? err.message : 'Create failed');
+      Alert.alert('Error', getErrorMessage(err, 'Create failed'));
     }
   };
 
@@ -56,7 +57,7 @@ export function FoodCatalogScreen() {
       );
       setEditingFood(null);
     } catch (err) {
-      Alert.alert('Error', err instanceof Error ? err.message : 'Update failed');
+      Alert.alert('Error', getErrorMessage(err, 'Update failed'));
     }
   };
 
@@ -71,10 +72,7 @@ export function FoodCatalogScreen() {
             await foodApi.remove(food.id);
             setFoods((prev) => prev.filter((item) => item.id !== food.id));
           } catch (err) {
-            Alert.alert(
-              'Error',
-              err instanceof Error ? err.message : 'Delete failed',
-            );
+            Alert.alert('Error', getErrorMessage(err, 'Delete failed'));
           }
         },
       },
