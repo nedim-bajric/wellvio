@@ -8,7 +8,7 @@ import {
   UserProfile,
 } from './diet.types.js';
 
-const KCAL_PER_KG_FAT = 7700;
+export const KCAL_PER_KG_FAT = 7700;
 
 const ACTIVITY_MULTIPLIERS: Record<ActivityLevel, number> = {
   sedentary: 1.2,

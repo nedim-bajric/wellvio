@@ -5,9 +5,16 @@ import { DietModule } from './diet/diet.module.js';
 import { FoodModule } from './food/food.module.js';
 import { LogEntryModule } from './log-entry/log-entry.module.js';
 import { OnboardingModule } from './onboarding/onboarding.module.js';
+import { WeightLogModule } from './weight-log/weight-log.module.js';
 
 @Module({
-  imports: [DietModule, FoodModule, LogEntryModule, OnboardingModule],
+  imports: [
+    DietModule,
+    FoodModule,
+    LogEntryModule,
+    OnboardingModule,
+    WeightLogModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

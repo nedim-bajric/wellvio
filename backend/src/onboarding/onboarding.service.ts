@@ -100,6 +100,39 @@ export class OnboardingService {
     return this.planRepository.findActiveByUserId(userId);
   }
 
+  async getPlanOptionsAtWeight(
+    userId: string,
+    currentWeightKg: number,
+  ): Promise<PlanOptionsResult> {
+    const { userProfile } = await this.requireProfileWithInputs(userId);
+    const adjustedProfile = { ...userProfile, currentWeightKg };
+    this.requireFeasible(adjustedProfile);
+
+    const options: PlanOption[] = this.dietService
+      .generatePlanOptions(adjustedProfile)
+      .map((plan) => ({
+        rate: plan.rate,
+        targetCalories: plan.targetCalories,
+        targetNutrients: plan.targetNutrients,
+        dailyDeficit: plan.dailyDeficit,
+        daysToTarget: plan.daysToTarget,
+        safe: plan.safe,
+      }));
+
+    return { options };
+  }
+
+  async updateCurrentWeight(
+    userId: string,
+    currentWeightKg: number,
+  ): Promise<Profile> {
+    const profile = await this.profileRepository.findByUserId(userId);
+    if (!profile) {
+      throw new ProfileNotFoundError(userId);
+    }
+    return this.profileRepository.update(userId, { currentWeightKg });
+  }
+
   private async requireProfileWithInputs(
     userId: string,
   ): Promise<{ profile: Profile; userProfile: UserProfile }> {
