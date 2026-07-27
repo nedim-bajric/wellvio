@@ -13,6 +13,8 @@ import {
 import { LogEntryService } from './log-entry.service.js';
 import { LogEntryNotFoundError } from './log-entry-not-found.error.js';
 import { LogEntryNotFoundFilter } from './log-entry-not-found.filter.js';
+import { FoodNotFoundError } from '../food/food-not-found.error.js';
+import { FoodNotFoundFilter } from '../food/food-not-found.filter.js';
 import type {
   CreateLogEntryData,
   DailyDashboard,
@@ -20,8 +22,12 @@ import type {
   UpdateLogEntryData,
 } from './log-entry.types.js';
 
+function parseDateParam(date?: string): Date {
+  return date ? new Date(`${date}T00:00:00Z`) : new Date();
+}
+
 @Controller('log-entries')
-@UseFilters(LogEntryNotFoundFilter)
+@UseFilters(LogEntryNotFoundFilter, FoodNotFoundFilter)
 export class LogEntryController {
   constructor(private readonly logEntryService: LogEntryService) {}
 
@@ -38,10 +44,7 @@ export class LogEntryController {
     @Headers('x-user-id') userId: string,
     @Query('date') date?: string,
   ): Promise<LogEntry[]> {
-    return this.logEntryService.findAllByDate(
-      userId,
-      date ? new Date(date) : new Date(),
-    );
+    return this.logEntryService.findAllByDate(userId, parseDateParam(date));
   }
 
   @Get('dashboard')
@@ -49,10 +52,7 @@ export class LogEntryController {
     @Headers('x-user-id') userId: string,
     @Query('date') date?: string,
   ): Promise<DailyDashboard> {
-    return this.logEntryService.getDailyDashboard(
-      userId,
-      date ? new Date(date) : new Date(),
-    );
+    return this.logEntryService.getDailyDashboard(userId, parseDateParam(date));
   }
 
   @Get(':id')

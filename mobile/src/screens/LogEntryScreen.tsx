@@ -13,6 +13,7 @@ import {
 import { foodApi } from '../api/foodApi.js';
 import { logEntryApi } from '../api/logEntryApi.js';
 import { getErrorMessage } from '../utils/errorMessage.js';
+import { formatToday } from '../utils/date.js';
 import type { Food } from '../types/food.js';
 import type { LogEntry, MealSlot } from '../types/logEntry.js';
 import { MEAL_SLOTS } from '../types/logEntry.js';
@@ -23,10 +24,6 @@ type LogNavigationProp = BottomTabNavigationProp<RootTabParamList, 'Log'>;
 
 interface LogEntryScreenProps {
   navigation: LogNavigationProp;
-}
-
-function formatToday(): string {
-  return new Date().toISOString().split('T')[0];
 }
 
 export function LogEntryScreen({ navigation }: LogEntryScreenProps) {

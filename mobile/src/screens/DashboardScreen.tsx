@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { logEntryApi } from '../api/logEntryApi.js';
 import { getErrorMessage } from '../utils/errorMessage.js';
+import { formatToday } from '../utils/date.js';
 import type { DailyDashboard, MealSlotSummary } from '../types/logEntry.js';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { RootTabParamList } from '../../App.js';
@@ -20,10 +21,6 @@ type DashboardNavigationProp = BottomTabNavigationProp<
 
 interface DashboardScreenProps {
   navigation: DashboardNavigationProp;
-}
-
-function formatToday(): string {
-  return new Date().toISOString().split('T')[0];
 }
 
 function formatMacro(value: number): string {

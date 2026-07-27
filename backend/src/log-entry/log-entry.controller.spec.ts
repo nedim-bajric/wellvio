@@ -79,7 +79,7 @@ describe('LogEntryController', () => {
 
       expect(service.findAllByDate).toHaveBeenCalledWith(
         userId,
-        new Date('2026-07-27'),
+        new Date('2026-07-27T00:00:00Z'),
       );
       expect(result).toEqual(entries);
     });
@@ -100,7 +100,7 @@ describe('LogEntryController', () => {
 
       expect(service.getDailyDashboard).toHaveBeenCalledWith(
         userId,
-        new Date('2026-07-27'),
+        new Date('2026-07-27T00:00:00Z'),
       );
       expect(result).toEqual(dashboard);
     });

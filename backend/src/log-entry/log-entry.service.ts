@@ -2,9 +2,11 @@ import { Inject, Injectable } from '@nestjs/common';
 import { FoodService } from '../food/food.service.js';
 import { OnboardingService } from '../onboarding/onboarding.service.js';
 import { scaleNutrients } from '../diet/diet.calculations.js';
+import { startOfDayUtc } from '../common/date.util.js';
 import { LOG_ENTRY_REPOSITORY } from './log-entry.repository.js';
 import type { LogEntryRepository } from './log-entry.repository.js';
 import { LogEntryNotFoundError } from './log-entry-not-found.error.js';
+import { FoodNotFoundError } from '../food/food-not-found.error.js';
 import {
   CreateLogEntryData,
   DailyDashboard,
@@ -15,12 +17,6 @@ import {
   UpdateLogEntryData,
 } from './log-entry.types.js';
 import { Nutrients } from '../diet/diet.types.js';
-
-function startOfDay(date: Date): Date {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
 
 function zeroNutrients(): Nutrients {
   return { calories: 0, protein: 0, carbs: 0, fat: 0 };
@@ -59,14 +55,18 @@ export class LogEntryService {
 
   async create(userId: string, data: CreateLogEntryData): Promise<LogEntry> {
     const food = await this.requireFood(userId, data.foodId);
-    const entry = await this.repository.create(userId, data);
+    const normalizedData: CreateLogEntryData = {
+      ...data,
+      loggedAt: data.loggedAt ? new Date(data.loggedAt) : new Date(),
+    };
+    const entry = await this.repository.create(userId, normalizedData);
     return this.enrichEntry(entry, food);
   }
 
   async findAllByDate(userId: string, date: Date): Promise<LogEntry[]> {
     const entries = await this.repository.findAllByUserIdAndDate(
       userId,
-      startOfDay(date),
+      startOfDayUtc(date),
     );
     return Promise.all(entries.map((entry) => this.enrichEntry(entry)));
   }
@@ -86,7 +86,11 @@ export class LogEntryService {
     if (!existing) {
       throw new LogEntryNotFoundError(id);
     }
-    const updated = await this.repository.update(userId, id, data);
+    const normalizedData: UpdateLogEntryData = {
+      ...data,
+      loggedAt: data.loggedAt ? new Date(data.loggedAt) : undefined,
+    };
+    const updated = await this.repository.update(userId, id, normalizedData);
     return this.enrichEntry(updated);
   }
 
@@ -120,7 +124,7 @@ export class LogEntryService {
     }));
 
     return {
-      date: startOfDay(date).toISOString(),
+      date: startOfDayUtc(date).toISOString(),
       totals,
       targets,
       remaining,
@@ -132,9 +136,10 @@ export class LogEntryService {
     entry: LogEntry,
     knownFood?: Awaited<ReturnType<FoodService['findOne']>>,
   ): Promise<LogEntry> {
-    const food = knownFood ?? (await this.foodService.findOne(entry.userId, entry.foodId));
+    const food =
+      knownFood ?? (await this.foodService.findOne(entry.userId, entry.foodId));
     if (!food) {
-      throw new LogEntryNotFoundError(entry.foodId);
+      throw new FoodNotFoundError(entry.foodId);
     }
     const nutrients = scaleNutrients(food.nutrientsPer100g, entry.grams);
     return {
@@ -147,7 +152,7 @@ export class LogEntryService {
   private async requireFood(userId: string, foodId: string) {
     const food = await this.foodService.findOne(userId, foodId);
     if (!food) {
-      throw new LogEntryNotFoundError(foodId);
+      throw new FoodNotFoundError(foodId);
     }
     return food;
   }

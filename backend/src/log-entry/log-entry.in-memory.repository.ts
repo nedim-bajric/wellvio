@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { startOfDayUtc } from '../common/date.util.js';
 import { LogEntryRepository } from './log-entry.repository.js';
 import { LogEntryNotFoundError } from './log-entry-not-found.error.js';
 import {
@@ -7,14 +8,8 @@ import {
   UpdateLogEntryData,
 } from './log-entry.types.js';
 
-function startOfDay(date: Date): Date {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
 function isSameDay(a: Date, b: Date): boolean {
-  return startOfDay(a).getTime() === startOfDay(b).getTime();
+  return startOfDayUtc(a).getTime() === startOfDayUtc(b).getTime();
 }
 
 @Injectable()
@@ -31,7 +26,7 @@ export class InMemoryLogEntryRepository implements LogEntryRepository {
       grams: data.grams,
       nutrients: { calories: 0, protein: 0, carbs: 0, fat: 0 },
       mealSlot: data.mealSlot,
-      loggedAt: data.loggedAt ?? now,
+      loggedAt: data.loggedAt ? new Date(data.loggedAt) : now,
       createdAt: now,
       updatedAt: now,
     };
@@ -67,7 +62,7 @@ export class InMemoryLogEntryRepository implements LogEntryRepository {
       foodId: data.foodId ?? existing.foodId,
       grams: data.grams ?? existing.grams,
       mealSlot: data.mealSlot ?? existing.mealSlot,
-      loggedAt: data.loggedAt ?? existing.loggedAt,
+      loggedAt: data.loggedAt ? new Date(data.loggedAt) : existing.loggedAt,
       updatedAt: new Date(),
     };
     this.entries.set(id, updated);

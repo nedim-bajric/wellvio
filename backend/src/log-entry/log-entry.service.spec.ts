@@ -4,6 +4,7 @@ import { LOG_ENTRY_REPOSITORY } from './log-entry.repository.js';
 import { FoodService } from '../food/food.service.js';
 import { OnboardingService } from '../onboarding/onboarding.service.js';
 import { LogEntryNotFoundError } from './log-entry-not-found.error.js';
+import { FoodNotFoundError } from '../food/food-not-found.error.js';
 import type { LogEntryRepository } from './log-entry.repository.js';
 import type { LogEntry } from './log-entry.types.js';
 import type { Food } from '../food/food.types.js';
@@ -126,7 +127,7 @@ describe('LogEntryService', () => {
 
       await expect(
         service.create(userId, { foodId: 'missing', grams: 100, mealSlot: 'breakfast' }),
-      ).rejects.toThrow(LogEntryNotFoundError);
+      ).rejects.toThrow(FoodNotFoundError);
     });
   });
 

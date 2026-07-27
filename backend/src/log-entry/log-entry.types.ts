@@ -21,7 +21,7 @@ export interface CreateLogEntryData {
   foodId: string;
   grams: number;
   mealSlot: MealSlot;
-  loggedAt?: Date;
+  loggedAt?: Date | string;
 }
 
 export type UpdateLogEntryData = Partial<CreateLogEntryData>;
