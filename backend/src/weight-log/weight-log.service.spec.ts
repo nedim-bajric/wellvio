@@ -329,6 +329,38 @@ describe('WeightLogService', () => {
       expect(result.suggestedPlan?.rate).toBe('mild');
     });
 
+    it('skips unsafe options and falls back to the next safe option', async () => {
+      jest.spyOn(repository, 'findAllByUserId').mockResolvedValue([
+        makeEntry({
+          id: 'w1',
+          weightKg: 80,
+          loggedAt: new Date('2026-07-13T08:00:00Z'),
+        }),
+        makeEntry({
+          id: 'w2',
+          weightKg: 79.4,
+          loggedAt: new Date('2026-07-27T08:00:00Z'),
+        }),
+      ]);
+      jest.spyOn(onboardingService, 'getActivePlan').mockResolvedValue({
+        ...activePlan,
+        rate: 'mild',
+      });
+      jest
+        .spyOn(onboardingService, 'getPlanOptionsAtWeight')
+        .mockResolvedValue({
+          options: [
+            { ...planOption('mild', 2200), safe: true },
+            { ...planOption('moderate', 2000), safe: false },
+            { ...planOption('aggressive', 1800), safe: true },
+          ],
+        });
+
+      const result = await service.suggestAdjustment(userId);
+
+      expect(result.suggestedPlan?.rate).toBe('aggressive');
+    });
+
     it('returns no suggestion when on track', async () => {
       jest.spyOn(repository, 'findAllByUserId').mockResolvedValue([
         makeEntry({

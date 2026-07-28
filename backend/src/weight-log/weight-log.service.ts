@@ -277,6 +277,7 @@ export class WeightLogService {
     trend: Exclude<WeightTrend, 'insufficientData' | 'onTrack'>,
     options: PlanOption[],
   ): PlanOption | null {
+    const safeOptions = options.filter((o) => o.safe);
     const rateOrder: PlanOption['rate'][] = ['mild', 'moderate', 'aggressive'];
     const currentIndex = rateOrder.indexOf(currentRate);
     const direction = trend === 'behind' ? 1 : -1;
@@ -289,16 +290,20 @@ export class WeightLogService {
       const higherIndex = targetIndex + offset;
       if (
         higherIndex < rateOrder.length &&
-        options.some((o) => o.rate === rateOrder[higherIndex])
+        safeOptions.some((o) => o.rate === rateOrder[higherIndex])
       ) {
-        return options.find((o) => o.rate === rateOrder[higherIndex]) ?? null;
+        return (
+          safeOptions.find((o) => o.rate === rateOrder[higherIndex]) ?? null
+        );
       }
       const lowerIndex = targetIndex - offset;
       if (
         lowerIndex >= 0 &&
-        options.some((o) => o.rate === rateOrder[lowerIndex])
+        safeOptions.some((o) => o.rate === rateOrder[lowerIndex])
       ) {
-        return options.find((o) => o.rate === rateOrder[lowerIndex]) ?? null;
+        return (
+          safeOptions.find((o) => o.rate === rateOrder[lowerIndex]) ?? null
+        );
       }
     }
 
