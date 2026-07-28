@@ -59,6 +59,11 @@ export function DashboardScreen({ navigation }: DashboardScreenProps) {
         <Text style={styles.cardTitle}>Totals</Text>
         {dashboard ? (
           <>
+            {!dashboard.targets && (
+              <Text style={styles.noPlanNote}>
+                No active plan. Complete onboarding to see daily targets.
+              </Text>
+            )}
             <MacroRow
               label="Calories"
               value={dashboard.totals.calories}
@@ -199,6 +204,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     marginTop: 2,
+  },
+  noPlanNote: {
+    fontSize: 13,
+    color: '#666',
+    marginBottom: 12,
   },
   empty: {
     textAlign: 'center',
