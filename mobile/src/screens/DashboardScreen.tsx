@@ -12,11 +12,11 @@ import { getErrorMessage } from '../utils/errorMessage.js';
 import { formatToday } from '../utils/date.js';
 import type { DailyDashboard, MealSlotSummary } from '../types/logEntry.js';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import type { RootTabParamList } from '../../App.js';
+import type { MainTabParamList } from '../navigation/types.js';
 
 type DashboardNavigationProp = BottomTabNavigationProp<
-  RootTabParamList,
-  'Dashboard'
+  MainTabParamList,
+  'Home'
 >;
 
 interface DashboardScreenProps {
@@ -53,7 +53,7 @@ export function DashboardScreen({ navigation }: DashboardScreenProps) {
     <View style={styles.container}>
       <Text style={styles.title}>Today</Text>
       {error && <Text style={styles.error}>{error}</Text>}
-      <Button title="Log food" onPress={() => navigation.navigate('Log')} />
+      <Button title="Log food" onPress={() => navigation.navigate('Diary')} />
 
       <View style={styles.summaryCard}>
         <Text style={styles.cardTitle}>Totals</Text>

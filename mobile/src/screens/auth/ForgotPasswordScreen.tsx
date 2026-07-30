@@ -13,10 +13,10 @@ import { WvButton } from '../../components/ui/WvButton.js';
 import { WvBackButton } from '../../components/ui/WvBackButton.js';
 import { useTheme } from '../../theme/index.js';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { AuthStackParamList } from '../../navigation/types.js';
+import type { RootStackParamList } from '../../navigation/types.js';
 
 interface ForgotPasswordScreenProps {
-  navigation: NativeStackNavigationProp<AuthStackParamList, 'ForgotPassword'>;
+  navigation: NativeStackNavigationProp<RootStackParamList, 'ForgotPassword'>;
 }
 
 export function ForgotPasswordScreen({ navigation }: ForgotPasswordScreenProps) {

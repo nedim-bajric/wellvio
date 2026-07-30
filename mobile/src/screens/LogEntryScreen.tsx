@@ -18,9 +18,9 @@ import type { Food } from '../types/food.js';
 import type { LogEntry, MealSlot } from '../types/logEntry.js';
 import { MEAL_SLOTS } from '../types/logEntry.js';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import type { RootTabParamList } from '../../App.js';
+import type { MainTabParamList } from '../navigation/types.js';
 
-type LogNavigationProp = BottomTabNavigationProp<RootTabParamList, 'Log'>;
+type LogNavigationProp = BottomTabNavigationProp<MainTabParamList, 'Diary'>;
 
 interface LogEntryScreenProps {
   navigation: LogNavigationProp;
@@ -99,7 +99,7 @@ export function LogEntryScreen({ navigation }: LogEntryScreenProps) {
       setGrams('');
       setMealSlot('breakfast');
       await loadRecentEntries();
-      navigation.navigate('Dashboard');
+      navigation.navigate('Home');
     } catch (err) {
       Alert.alert('Error', getErrorMessage(err, 'Failed to log food'));
     } finally {

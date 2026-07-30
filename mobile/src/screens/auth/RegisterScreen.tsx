@@ -13,10 +13,10 @@ import { WvBackButton } from '../../components/ui/WvBackButton.js';
 import { WvProgressBar } from '../../components/ui/WvProgressBar.js';
 import { useTheme } from '../../theme/index.js';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { AuthStackParamList } from '../../navigation/types.js';
+import type { RootStackParamList } from '../../navigation/types.js';
 
 interface RegisterScreenProps {
-  navigation: NativeStackNavigationProp<AuthStackParamList, 'Register'>;
+  navigation: NativeStackNavigationProp<RootStackParamList, 'Register'>;
 }
 
 export function RegisterScreen({ navigation }: RegisterScreenProps) {
@@ -41,7 +41,7 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      // In a real app this would register the user and continue to onboarding.
+      navigation.navigate('Onboarding');
     }, 1000);
   };
 

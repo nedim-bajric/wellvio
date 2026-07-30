@@ -18,9 +18,9 @@ import type {
   WeightTrendAnalysis,
 } from '../types/weight.js';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import type { RootTabParamList } from '../../App.js';
+import type { MainTabParamList } from '../navigation/types.js';
 
-type WeightNavigationProp = BottomTabNavigationProp<RootTabParamList, 'Weight'>;
+type WeightNavigationProp = BottomTabNavigationProp<MainTabParamList, 'Home'>;
 
 interface WeightScreenProps {
   navigation: WeightNavigationProp;

@@ -12,10 +12,10 @@ import { WvButton } from '../../components/ui/WvButton.js';
 import { WvBackButton } from '../../components/ui/WvBackButton.js';
 import { useTheme } from '../../theme/index.js';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { AuthStackParamList } from '../../navigation/types.js';
+import type { RootStackParamList } from '../../navigation/types.js';
 
 interface LoginScreenProps {
-  navigation: NativeStackNavigationProp<AuthStackParamList, 'Login'>;
+  navigation: NativeStackNavigationProp<RootStackParamList, 'Login'>;
 }
 
 export function LoginScreen({ navigation }: LoginScreenProps) {
@@ -40,8 +40,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      // In a real app, this would call the auth API and then navigate to onboarding/main.
-      // For now the auth flow UI ends at login success.
+      navigation.navigate('Main');
     }, 1200);
   };
 

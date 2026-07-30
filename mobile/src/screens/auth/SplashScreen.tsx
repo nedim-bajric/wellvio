@@ -3,10 +3,10 @@ import { View, Animated, StyleSheet } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { useTheme } from '../../theme/index.js';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { AuthStackParamList } from '../../navigation/types.js';
+import type { RootStackParamList } from '../../navigation/types.js';
 
 interface SplashScreenProps {
-  navigation: NativeStackNavigationProp<AuthStackParamList, 'Splash'>;
+  navigation: NativeStackNavigationProp<RootStackParamList, 'Splash'>;
 }
 
 export function SplashScreen({ navigation }: SplashScreenProps) {

@@ -8,7 +8,7 @@ import { useTheme } from '../../theme/index.js';
 
 interface WvCardProps extends ViewProps {
   children: React.ReactNode;
-  style?: ViewStyle;
+  style?: ViewStyle | ViewStyle[];
   variant?: 'default' | 'alt';
 }
 
