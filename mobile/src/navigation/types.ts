@@ -1,3 +1,5 @@
+import type { MealSlot } from '../types/logEntry.js';
+
 export type AuthStackParamList = {
   Splash: undefined;
   Welcome: undefined;
@@ -67,4 +69,7 @@ export type RootStackParamList = {
   ForgotPassword: undefined;
   Onboarding: undefined;
   Main: undefined;
+  AddFood: { mealSlot?: MealSlot } | undefined;
+  FoodDetail: { foodId: string; mealSlot?: MealSlot };
+  QuickAdd: { mealSlot?: MealSlot } | undefined;
 };

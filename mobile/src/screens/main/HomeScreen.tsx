@@ -20,10 +20,17 @@ import { getErrorMessage } from '../../utils/errorMessage.js';
 import { formatToday } from '../../utils/date.js';
 import type { DailyDashboard, LogEntry, MealSlot } from '../../types/logEntry.js';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import type { MainTabParamList } from '../../navigation/types.js';
+import type { CompositeNavigationProp } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { MainTabParamList, RootStackParamList } from '../../navigation/types.js';
+
+type HomeScreenNavigationProp = CompositeNavigationProp<
+  BottomTabNavigationProp<MainTabParamList, 'Home'>,
+  NativeStackNavigationProp<RootStackParamList>
+>;
 
 interface HomeScreenProps {
-  navigation: BottomTabNavigationProp<MainTabParamList, 'Home'>;
+  navigation: HomeScreenNavigationProp;
 }
 
 const slotBudgetRatios: Record<MealSlot, number> = {
@@ -406,7 +413,11 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
                       </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      onPress={() => navigation.navigate('Diary')}
+                      onPress={() =>
+                        navigation.navigate('AddFood', {
+                          mealSlot: slot.mealSlot,
+                        })
+                      }
                       style={[
                         styles.addButton,
                         { backgroundColor: theme.colors.primary },

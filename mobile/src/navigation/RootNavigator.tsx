@@ -7,6 +7,11 @@ import {
   RegisterScreen,
   ForgotPasswordScreen,
 } from '../screens/auth/index.js';
+import {
+  AddFoodScreen,
+  FoodDetailScreen,
+  QuickAddScreen,
+} from '../screens/main/index.js';
 import { OnboardingNavigator } from './OnboardingNavigator.js';
 import { MainNavigator } from './MainNavigator.js';
 import type { RootStackParamList } from './types.js';
@@ -24,6 +29,9 @@ export function RootNavigator() {
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
         <Stack.Screen name="Onboarding" component={OnboardingNavigator} />
         <Stack.Screen name="Main" component={MainNavigator} />
+        <Stack.Screen name="AddFood" component={AddFoodScreen} />
+        <Stack.Screen name="FoodDetail" component={FoodDetailScreen} />
+        <Stack.Screen name="QuickAdd" component={QuickAddScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
