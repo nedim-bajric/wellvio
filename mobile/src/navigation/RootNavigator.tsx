@@ -16,6 +16,7 @@ import {
   SleepDetailScreen,
   HydrationScreen,
   BodyMeasurementsScreen,
+  EditProfileScreen,
 } from '../screens/main/index.js';
 import { OnboardingNavigator } from './OnboardingNavigator.js';
 import { MainNavigator } from './MainNavigator.js';
@@ -42,6 +43,7 @@ export function RootNavigator() {
         <Stack.Screen name="SleepDetail" component={SleepDetailScreen} />
         <Stack.Screen name="Hydration" component={HydrationScreen} />
         <Stack.Screen name="BodyMeasurements" component={BodyMeasurementsScreen} />
+        <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

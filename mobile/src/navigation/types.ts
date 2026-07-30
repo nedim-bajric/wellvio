@@ -77,4 +77,5 @@ export type RootStackParamList = {
   SleepDetail: undefined;
   Hydration: undefined;
   BodyMeasurements: undefined;
+  EditProfile: undefined;
 };

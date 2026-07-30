@@ -11,3 +11,4 @@ export { LogWorkoutScreen } from './LogWorkoutScreen.js';
 export { SleepDetailScreen } from './SleepDetailScreen.js';
 export { HydrationScreen } from './HydrationScreen.js';
 export { BodyMeasurementsScreen } from './BodyMeasurementsScreen.js';
+export { EditProfileScreen } from './EditProfileScreen.js';
