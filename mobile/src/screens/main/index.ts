@@ -7,3 +7,4 @@ export { AddFoodScreen } from './AddFoodScreen.js';
 export { FoodDetailScreen } from './FoodDetailScreen.js';
 export { QuickAddScreen } from './QuickAddScreen.js';
 export { WeightLogScreen } from './WeightLogScreen.js';
+export { LogWorkoutScreen } from './LogWorkoutScreen.js';
