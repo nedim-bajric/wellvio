@@ -78,4 +78,6 @@ export type RootStackParamList = {
   Hydration: undefined;
   BodyMeasurements: undefined;
   EditProfile: undefined;
+  GoalsTargets: undefined;
+  AppSettings: undefined;
 };

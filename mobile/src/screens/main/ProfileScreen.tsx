@@ -59,6 +59,7 @@ export function ProfileScreen({ navigation }: ProfileScreenProps) {
     {
       icon: <Target size={20} color={theme.colors.orange} />,
       label: 'Goals & targets',
+      onPress: () => navigation.navigate('GoalsTargets'),
     },
     {
       icon: <Apple size={20} color={theme.colors.purple} />,
@@ -67,6 +68,7 @@ export function ProfileScreen({ navigation }: ProfileScreenProps) {
     {
       icon: <Settings size={20} color={theme.colors.blue} />,
       label: 'App settings',
+      onPress: () => navigation.navigate('AppSettings'),
     },
     {
       icon: <Smartphone size={20} color={theme.colors.activityGreen} />,
