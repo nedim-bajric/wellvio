@@ -9,7 +9,7 @@ import {
 import { useTheme } from '../../theme/index.js';
 
 interface WvButtonProps {
-  title: string;
+  title?: string;
   onPress: () => void;
   variant?: 'primary' | 'secondary' | 'outline' | 'danger';
   size?: 'sm' | 'md' | 'lg';
@@ -18,6 +18,7 @@ interface WvButtonProps {
   style?: ViewStyle;
   textStyle?: TextStyle;
   icon?: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 export function WvButton({
@@ -30,6 +31,7 @@ export function WvButton({
   style,
   textStyle,
   icon,
+  children,
 }: WvButtonProps) {
   const theme = useTheme();
 
@@ -78,6 +80,8 @@ export function WvButton({
     >
       {loading ? (
         <ActivityIndicator color={color} />
+      ) : children ? (
+        children
       ) : (
         <>
           {icon}

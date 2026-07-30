@@ -36,9 +36,13 @@ const INITIAL_FORM: OnboardingForm = {
   healthDisclaimerAcknowledged: false,
 };
 
+export type WeeklyRate = '0.5lb' | '1lb' | '1.5lb' | 'maintain';
+
 interface OnboardingContextValue {
   form: OnboardingForm;
   updateForm: <K extends keyof OnboardingForm>(key: K, value: OnboardingForm[K]) => void;
+  weeklyRate: WeeklyRate;
+  setWeeklyRate: (rate: WeeklyRate) => void;
   planOptions: PlanOption[];
   selectedRate: PlanRate | null;
   setSelectedRate: (rate: PlanRate | null) => void;
@@ -53,6 +57,7 @@ const OnboardingContext = createContext<OnboardingContextValue | null>(null);
 
 export function OnboardingProvider({ children }: { children: ReactNode }) {
   const [form, setForm] = useState<OnboardingForm>(INITIAL_FORM);
+  const [weeklyRate, setWeeklyRate] = useState<WeeklyRate>('1lb');
   const [planOptions, setPlanOptions] = useState<PlanOption[]>([]);
   const [selectedRate, setSelectedRate] = useState<PlanRate | null>(null);
   const [loading, setLoading] = useState(false);
@@ -165,6 +170,8 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
       value={{
         form,
         updateForm,
+        weeklyRate,
+        setWeeklyRate,
         planOptions,
         selectedRate,
         setSelectedRate,
