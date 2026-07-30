@@ -480,7 +480,7 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
         </View>
 
         <TouchableOpacity
-          onPress={() => navigation.navigate('Diary')}
+          onPress={() => navigation.navigate('WeightLog')}
           activeOpacity={0.8}
         >
           <WvCard style={styles.weightPrompt}>

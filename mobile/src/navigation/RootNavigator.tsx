@@ -11,6 +11,7 @@ import {
   AddFoodScreen,
   FoodDetailScreen,
   QuickAddScreen,
+  WeightLogScreen,
 } from '../screens/main/index.js';
 import { OnboardingNavigator } from './OnboardingNavigator.js';
 import { MainNavigator } from './MainNavigator.js';
@@ -32,6 +33,7 @@ export function RootNavigator() {
         <Stack.Screen name="AddFood" component={AddFoodScreen} />
         <Stack.Screen name="FoodDetail" component={FoodDetailScreen} />
         <Stack.Screen name="QuickAdd" component={QuickAddScreen} />
+        <Stack.Screen name="WeightLog" component={WeightLogScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
