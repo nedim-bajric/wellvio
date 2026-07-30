@@ -80,4 +80,5 @@ export type RootStackParamList = {
   EditProfile: undefined;
   GoalsTargets: undefined;
   AppSettings: undefined;
+  PlanSettings: undefined;
 };

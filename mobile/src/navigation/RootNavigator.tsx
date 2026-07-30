@@ -19,6 +19,7 @@ import {
   EditProfileScreen,
   GoalsTargetsScreen,
   AppSettingsScreen,
+  PlanSettingsScreen,
 } from '../screens/main/index.js';
 import { OnboardingNavigator } from './OnboardingNavigator.js';
 import { MainNavigator } from './MainNavigator.js';
@@ -48,6 +49,7 @@ export function RootNavigator() {
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
         <Stack.Screen name="GoalsTargets" component={GoalsTargetsScreen} />
         <Stack.Screen name="AppSettings" component={AppSettingsScreen} />
+        <Stack.Screen name="PlanSettings" component={PlanSettingsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

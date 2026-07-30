@@ -14,3 +14,4 @@ export { BodyMeasurementsScreen } from './BodyMeasurementsScreen.js';
 export { EditProfileScreen } from './EditProfileScreen.js';
 export { GoalsTargetsScreen } from './GoalsTargetsScreen.js';
 export { AppSettingsScreen } from './AppSettingsScreen.js';
+export { PlanSettingsScreen } from './PlanSettingsScreen.js';

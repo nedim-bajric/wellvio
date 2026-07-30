@@ -64,6 +64,7 @@ export function ProfileScreen({ navigation }: ProfileScreenProps) {
     {
       icon: <Apple size={20} color={theme.colors.purple} />,
       label: 'Plan settings',
+      onPress: () => navigation.navigate('PlanSettings'),
     },
     {
       icon: <Settings size={20} color={theme.colors.blue} />,
