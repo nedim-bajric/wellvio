@@ -8,3 +8,6 @@ export { FoodDetailScreen } from './FoodDetailScreen.js';
 export { QuickAddScreen } from './QuickAddScreen.js';
 export { WeightLogScreen } from './WeightLogScreen.js';
 export { LogWorkoutScreen } from './LogWorkoutScreen.js';
+export { SleepDetailScreen } from './SleepDetailScreen.js';
+export { HydrationScreen } from './HydrationScreen.js';
+export { BodyMeasurementsScreen } from './BodyMeasurementsScreen.js';

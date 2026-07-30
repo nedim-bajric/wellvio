@@ -9,11 +9,16 @@ import {
 import { Moon, Droplets, Activity, Heart, ChevronRight } from 'lucide-react-native';
 import { WvCard } from '../../components/ui/WvCard.js';
 import { useTheme } from '../../theme/index.js';
+import type { CompositeNavigationProp } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import type { MainTabParamList } from '../../navigation/types.js';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { MainTabParamList, RootStackParamList } from '../../navigation/types.js';
 
 interface HealthScreenProps {
-  navigation: BottomTabNavigationProp<MainTabParamList, 'Health'>;
+  navigation: CompositeNavigationProp<
+    BottomTabNavigationProp<MainTabParamList, 'Health'>,
+    NativeStackNavigationProp<RootStackParamList>
+  >;
 }
 
 export function HealthScreen({ navigation }: HealthScreenProps) {
@@ -36,7 +41,10 @@ export function HealthScreen({ navigation }: HealthScreenProps) {
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll}>
-        <TouchableOpacity activeOpacity={0.8}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate('SleepDetail')}
+        >
           <WvCard style={styles.healthCard}>
             <View style={styles.healthLeft}>
               <View
@@ -78,7 +86,10 @@ export function HealthScreen({ navigation }: HealthScreenProps) {
           </WvCard>
         </TouchableOpacity>
 
-        <TouchableOpacity activeOpacity={0.8}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate('Hydration')}
+        >
           <WvCard style={styles.healthCard}>
             <View style={styles.healthLeft}>
               <View
@@ -138,7 +149,10 @@ export function HealthScreen({ navigation }: HealthScreenProps) {
           </WvCard>
         </TouchableOpacity>
 
-        <TouchableOpacity activeOpacity={0.8}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate('BodyMeasurements')}
+        >
           <WvCard style={styles.healthCard}>
             <View style={styles.healthLeft}>
               <View

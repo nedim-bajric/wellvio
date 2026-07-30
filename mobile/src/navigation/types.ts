@@ -74,4 +74,7 @@ export type RootStackParamList = {
   QuickAdd: { mealSlot?: MealSlot } | undefined;
   WeightLog: undefined;
   LogWorkout: undefined;
+  SleepDetail: undefined;
+  Hydration: undefined;
+  BodyMeasurements: undefined;
 };

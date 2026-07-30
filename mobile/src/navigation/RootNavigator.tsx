@@ -13,6 +13,9 @@ import {
   QuickAddScreen,
   WeightLogScreen,
   LogWorkoutScreen,
+  SleepDetailScreen,
+  HydrationScreen,
+  BodyMeasurementsScreen,
 } from '../screens/main/index.js';
 import { OnboardingNavigator } from './OnboardingNavigator.js';
 import { MainNavigator } from './MainNavigator.js';
@@ -36,6 +39,9 @@ export function RootNavigator() {
         <Stack.Screen name="QuickAdd" component={QuickAddScreen} />
         <Stack.Screen name="WeightLog" component={WeightLogScreen} />
         <Stack.Screen name="LogWorkout" component={LogWorkoutScreen} />
+        <Stack.Screen name="SleepDetail" component={SleepDetailScreen} />
+        <Stack.Screen name="Hydration" component={HydrationScreen} />
+        <Stack.Screen name="BodyMeasurements" component={BodyMeasurementsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
