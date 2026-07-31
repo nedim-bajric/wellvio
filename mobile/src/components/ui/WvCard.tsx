@@ -4,7 +4,7 @@ import {
   type ViewStyle,
   type ViewProps,
 } from 'react-native';
-import { useTheme } from '../../theme/index.js';
+import { useTheme } from '../../theme/index';
 
 interface WvCardProps extends ViewProps {
   children: React.ReactNode;

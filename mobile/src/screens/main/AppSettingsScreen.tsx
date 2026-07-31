@@ -15,13 +15,13 @@ import {
   Trash2,
   ChevronRight,
 } from 'lucide-react-native';
-import { WvIconButton } from '../../components/ui/WvIconButton.js';
-import { WvCard } from '../../components/ui/WvCard.js';
-import { WvToggle } from '../../components/ui/WvToggle.js';
-import { WvPill } from '../../components/ui/WvPill.js';
-import { useTheme } from '../../theme/index.js';
+import { WvIconButton } from '../../components/ui/WvIconButton';
+import { WvCard } from '../../components/ui/WvCard';
+import { WvToggle } from '../../components/ui/WvToggle';
+import { WvPill } from '../../components/ui/WvPill';
+import { useTheme } from '../../theme/index';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../../navigation/types.js';
+import type { RootStackParamList } from '../../navigation/types';
 
 interface AppSettingsScreenProps {
   navigation: NativeStackNavigationProp<RootStackParamList, 'AppSettings'>;

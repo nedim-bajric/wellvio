@@ -1,6 +1,6 @@
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { OnboardingProvider } from './src/contexts/OnboardingContext.js';
-import { RootNavigator } from './src/navigation/RootNavigator.js';
+import { OnboardingProvider } from './src/contexts/OnboardingContext';
+import { RootNavigator } from './src/navigation/RootNavigator';
 
 export default function App() {
   return (

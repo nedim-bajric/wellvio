@@ -6,7 +6,7 @@ import {
   type ViewStyle,
   type TextStyle,
 } from 'react-native';
-import { useTheme } from '../../theme/index.js';
+import { useTheme } from '../../theme/index';
 
 interface WvButtonProps {
   title?: string;

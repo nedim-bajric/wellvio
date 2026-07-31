@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '../constants/api.js';
+import { API_BASE_URL } from '../constants/api';
 
 // TODO: replace with authenticated user id once mobile auth is implemented.
 const USER_ID = process.env.EXPO_PUBLIC_USER_ID ?? 'mobile-user';

@@ -5,14 +5,14 @@ import {
   useCallback,
   type ReactNode,
 } from 'react';
-import { onboardingApi } from '../api/onboardingApi.js';
+import { onboardingApi } from '../api/onboardingApi';
 import type {
   ActivityLevel,
   CreateProfileData,
   Gender,
   PlanOption,
   PlanRate,
-} from '../types/onboarding.js';
+} from '../types/onboarding';
 
 export interface OnboardingForm {
   gender: Gender;

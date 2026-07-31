@@ -10,19 +10,19 @@ import {
 } from 'react-native';
 import Svg, { Circle, Text as SvgText } from 'react-native-svg';
 import { ChevronRight, Plus, TrendingDown } from 'lucide-react-native';
-import { WvMacroChip } from '../../components/ui/WvMacroChip.js';
-import { WvCard } from '../../components/ui/WvCard.js';
-import { WvSectionHeader } from '../../components/ui/WvSectionHeader.js';
-import { WvProgressBar } from '../../components/ui/WvProgressBar.js';
-import { useTheme } from '../../theme/index.js';
-import { logEntryApi } from '../../api/logEntryApi.js';
-import { getErrorMessage } from '../../utils/errorMessage.js';
-import { formatToday } from '../../utils/date.js';
-import type { DailyDashboard, LogEntry, MealSlot } from '../../types/logEntry.js';
+import { WvMacroChip } from '../../components/ui/WvMacroChip';
+import { WvCard } from '../../components/ui/WvCard';
+import { WvSectionHeader } from '../../components/ui/WvSectionHeader';
+import { WvProgressBar } from '../../components/ui/WvProgressBar';
+import { useTheme } from '../../theme/index';
+import { logEntryApi } from '../../api/logEntryApi';
+import { getErrorMessage } from '../../utils/errorMessage';
+import { formatToday } from '../../utils/date';
+import type { DailyDashboard, LogEntry, MealSlot } from '../../types/logEntry';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { CompositeNavigationProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { MainTabParamList, RootStackParamList } from '../../navigation/types.js';
+import type { MainTabParamList, RootStackParamList } from '../../navigation/types';
 
 type HomeScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<MainTabParamList, 'Home'>,

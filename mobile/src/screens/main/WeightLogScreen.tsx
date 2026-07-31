@@ -11,15 +11,15 @@ import {
 } from 'react-native';
 import { ArrowLeft, TrendingDown } from 'lucide-react-native';
 import Svg, { Polyline, Circle } from 'react-native-svg';
-import { WvButton } from '../../components/ui/WvButton.js';
-import { WvIconButton } from '../../components/ui/WvIconButton.js';
-import { WvCard } from '../../components/ui/WvCard.js';
-import { useTheme } from '../../theme/index.js';
-import { weightApi } from '../../api/weightApi.js';
-import { getErrorMessage } from '../../utils/errorMessage.js';
+import { WvButton } from '../../components/ui/WvButton';
+import { WvIconButton } from '../../components/ui/WvIconButton';
+import { WvCard } from '../../components/ui/WvCard';
+import { useTheme } from '../../theme/index';
+import { weightApi } from '../../api/weightApi';
+import { getErrorMessage } from '../../utils/errorMessage';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../../navigation/types.js';
-import type { WeightLog, WeightTrendAnalysis } from '../../types/weight.js';
+import type { RootStackParamList } from '../../navigation/types';
+import type { WeightLog, WeightTrendAnalysis } from '../../types/weight';
 
 interface WeightLogScreenProps {
   navigation: NativeStackNavigationProp<RootStackParamList, 'WeightLog'>;

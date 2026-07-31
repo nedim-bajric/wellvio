@@ -1,5 +1,5 @@
-import { apiClient } from './client.js';
-import type { CreateFoodData, Food, UpdateFoodData } from '../types/food.js';
+import { apiClient } from './client';
+import type { CreateFoodData, Food, UpdateFoodData } from '../types/food';
 
 const FOODS_PATH = '/foods';
 

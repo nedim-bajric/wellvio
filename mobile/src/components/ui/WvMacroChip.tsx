@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native';
-import { WvProgressRing } from './WvProgressRing.js';
-import { useTheme } from '../../theme/index.js';
+import { WvProgressRing } from './WvProgressRing';
+import { useTheme } from '../../theme/index';
 
 interface WvMacroChipProps {
   label: string;

@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
-import { useTheme } from '../../theme/index.js';
+import { useTheme } from '../../theme/index';
 
 interface WvProgressRingProps {
   size: number;

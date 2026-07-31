@@ -15,12 +15,12 @@ import {
   HelpCircle,
   LogOut,
 } from 'lucide-react-native';
-import { WvCard } from '../../components/ui/WvCard.js';
-import { useTheme } from '../../theme/index.js';
+import { WvCard } from '../../components/ui/WvCard';
+import { useTheme } from '../../theme/index';
 import type { CompositeNavigationProp } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { MainTabParamList, RootStackParamList } from '../../navigation/types.js';
+import type { MainTabParamList, RootStackParamList } from '../../navigation/types';
 
 type ProfileNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<MainTabParamList, 'Profile'>,

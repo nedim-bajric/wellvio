@@ -8,18 +8,18 @@ import {
   Alert,
 } from 'react-native';
 import { ArrowLeft, Check, Plus, Minus } from 'lucide-react-native';
-import { WvButton } from '../../components/ui/WvButton.js';
-import { WvCard } from '../../components/ui/WvCard.js';
-import { WvIconButton } from '../../components/ui/WvIconButton.js';
-import { useTheme } from '../../theme/index.js';
-import { foodApi } from '../../api/foodApi.js';
-import { logEntryApi } from '../../api/logEntryApi.js';
-import { getErrorMessage } from '../../utils/errorMessage.js';
-import { formatToday } from '../../utils/date.js';
+import { WvButton } from '../../components/ui/WvButton';
+import { WvCard } from '../../components/ui/WvCard';
+import { WvIconButton } from '../../components/ui/WvIconButton';
+import { useTheme } from '../../theme/index';
+import { foodApi } from '../../api/foodApi';
+import { logEntryApi } from '../../api/logEntryApi';
+import { getErrorMessage } from '../../utils/errorMessage';
+import { formatToday } from '../../utils/date';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../../navigation/types.js';
-import type { Food } from '../../types/food.js';
-import type { MealSlot } from '../../types/logEntry.js';
+import type { RootStackParamList } from '../../navigation/types';
+import type { Food } from '../../types/food';
+import type { MealSlot } from '../../types/logEntry';
 
 interface FoodDetailScreenProps {
   navigation: NativeStackNavigationProp<RootStackParamList, 'FoodDetail'>;

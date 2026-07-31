@@ -4,7 +4,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
-import { useTheme } from '../../theme/index.js';
+import { useTheme } from '../../theme/index';
 
 interface WvSectionHeaderProps {
   title: string;

@@ -1,11 +1,11 @@
-import { apiClient } from './client.js';
+import { apiClient } from './client';
 import type {
   CreateWeightLogData,
   Plan,
   PlanAdjustmentSuggestion,
   WeightLog,
   WeightTrendAnalysis,
-} from '../types/weight.js';
+} from '../types/weight';
 
 const WEIGHT_LOGS_PATH = '/weight-logs';
 

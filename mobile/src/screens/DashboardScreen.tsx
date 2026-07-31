@@ -7,12 +7,12 @@ import {
   StyleSheet,
   RefreshControl,
 } from 'react-native';
-import { logEntryApi } from '../api/logEntryApi.js';
-import { getErrorMessage } from '../utils/errorMessage.js';
-import { formatToday } from '../utils/date.js';
-import type { DailyDashboard, MealSlotSummary } from '../types/logEntry.js';
+import { logEntryApi } from '../api/logEntryApi';
+import { getErrorMessage } from '../utils/errorMessage';
+import { formatToday } from '../utils/date';
+import type { DailyDashboard, MealSlotSummary } from '../types/logEntry';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import type { MainTabParamList } from '../navigation/types.js';
+import type { MainTabParamList } from '../navigation/types';
 
 type DashboardNavigationProp = BottomTabNavigationProp<
   MainTabParamList,

@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { View, Animated, StyleSheet } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
-import { useTheme } from '../../theme/index.js';
+import { useTheme } from '../../theme/index';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../../navigation/types.js';
+import type { RootStackParamList } from '../../navigation/types';
 
 interface SplashScreenProps {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Splash'>;

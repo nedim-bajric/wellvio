@@ -4,7 +4,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { Check } from 'lucide-react-native';
-import { useTheme } from '../../theme/index.js';
+import { useTheme } from '../../theme/index';
 
 interface WvCheckboxProps {
   checked: boolean;

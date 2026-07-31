@@ -7,11 +7,11 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { ArrowLeft, Droplets } from 'lucide-react-native';
-import { WvIconButton } from '../../components/ui/WvIconButton.js';
-import { useTheme } from '../../theme/index.js';
+import { WvIconButton } from '../../components/ui/WvIconButton';
+import { useTheme } from '../../theme/index';
 import Svg, { Path, ClipPath, Defs, Rect, Text as SvgText } from 'react-native-svg';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../../navigation/types.js';
+import type { RootStackParamList } from '../../navigation/types';
 
 interface HydrationScreenProps {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Hydration'>;

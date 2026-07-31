@@ -1,4 +1,4 @@
-import { Nutrients } from './food.js';
+import { Nutrients } from './food';
 
 export type MealSlot = 'breakfast' | 'lunch' | 'dinner' | 'snacks';
 

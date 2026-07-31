@@ -7,10 +7,10 @@ import {
 } from 'react-native';
 import { Check } from 'lucide-react-native';
 import Svg, { Circle } from 'react-native-svg';
-import { WvButton } from '../../components/ui/WvButton.js';
-import { useTheme } from '../../theme/index.js';
+import { WvButton } from '../../components/ui/WvButton';
+import { useTheme } from '../../theme/index';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { OnboardingStackParamList } from '../../navigation/types.js';
+import type { OnboardingStackParamList } from '../../navigation/types';
 
 interface SuccessScreenProps {
   navigation: NativeStackNavigationProp<OnboardingStackParamList, 'Success'>;

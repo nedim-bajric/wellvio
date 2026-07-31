@@ -15,10 +15,10 @@ import Svg, {
   ClipPath,
   Defs,
 } from 'react-native-svg';
-import { WvButton } from '../../components/ui/WvButton.js';
-import { useTheme } from '../../theme/index.js';
+import { WvButton } from '../../components/ui/WvButton';
+import { useTheme } from '../../theme/index';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { OnboardingStackParamList } from '../../navigation/types.js';
+import type { OnboardingStackParamList } from '../../navigation/types';
 
 interface CarouselScreenProps {
   navigation: NativeStackNavigationProp<OnboardingStackParamList, 'Carousel'>;

@@ -6,7 +6,7 @@ import {
   LoginScreen,
   RegisterScreen,
   ForgotPasswordScreen,
-} from '../screens/auth/index.js';
+} from '../screens/auth/index';
 import {
   AddFoodScreen,
   FoodDetailScreen,
@@ -20,10 +20,10 @@ import {
   GoalsTargetsScreen,
   AppSettingsScreen,
   PlanSettingsScreen,
-} from '../screens/main/index.js';
-import { OnboardingNavigator } from './OnboardingNavigator.js';
-import { MainNavigator } from './MainNavigator.js';
-import type { RootStackParamList } from './types.js';
+} from '../screens/main/index';
+import { OnboardingNavigator } from './OnboardingNavigator';
+import { MainNavigator } from './MainNavigator';
+import type { RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 

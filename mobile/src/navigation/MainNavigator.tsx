@@ -11,9 +11,9 @@ import {
   ActivityScreen,
   HealthScreen,
   ProfileScreen,
-} from '../screens/main/index.js';
-import { useTheme } from '../theme/index.js';
-import type { MainTabParamList } from './types.js';
+} from '../screens/main/index';
+import { useTheme } from '../theme/index';
+import type { MainTabParamList } from './types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 

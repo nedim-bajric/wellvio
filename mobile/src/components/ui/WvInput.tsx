@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react-native';
-import { useTheme } from '../../theme/index.js';
+import { useTheme } from '../../theme/index';
 
 interface WvInputProps {
   label?: string;

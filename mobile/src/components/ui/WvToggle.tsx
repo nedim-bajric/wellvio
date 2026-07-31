@@ -3,7 +3,7 @@ import {
   View,
   StyleSheet,
 } from 'react-native';
-import { useTheme } from '../../theme/index.js';
+import { useTheme } from '../../theme/index';
 
 interface WvToggleProps {
   value: boolean;

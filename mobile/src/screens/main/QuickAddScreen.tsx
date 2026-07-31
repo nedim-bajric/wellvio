@@ -9,14 +9,14 @@ import {
   Alert,
 } from 'react-native';
 import { ArrowLeft } from 'lucide-react-native';
-import { WvButton } from '../../components/ui/WvButton.js';
-import { WvIconButton } from '../../components/ui/WvIconButton.js';
-import { useTheme } from '../../theme/index.js';
-import { logEntryApi } from '../../api/logEntryApi.js';
-import { getErrorMessage } from '../../utils/errorMessage.js';
+import { WvButton } from '../../components/ui/WvButton';
+import { WvIconButton } from '../../components/ui/WvIconButton';
+import { useTheme } from '../../theme/index';
+import { logEntryApi } from '../../api/logEntryApi';
+import { getErrorMessage } from '../../utils/errorMessage';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../../navigation/types.js';
-import type { MealSlot } from '../../types/logEntry.js';
+import type { RootStackParamList } from '../../navigation/types';
+import type { MealSlot } from '../../types/logEntry';
 
 interface QuickAddScreenProps {
   navigation: NativeStackNavigationProp<RootStackParamList, 'QuickAdd'>;

@@ -1,4 +1,4 @@
-import type { MealSlot } from '../types/logEntry.js';
+import type { MealSlot } from '../types/logEntry';
 
 export type AuthStackParamList = {
   Splash: undefined;

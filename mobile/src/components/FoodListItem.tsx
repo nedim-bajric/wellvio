@@ -1,5 +1,5 @@
 import { View, Text, Button, StyleSheet } from 'react-native';
-import type { Food } from '../types/food.js';
+import type { Food } from '../types/food';
 
 interface FoodListItemProps {
   food: Food;

@@ -7,13 +7,13 @@ import {
 } from 'react-native';
 import { Flame } from 'lucide-react-native';
 import Svg, { Circle } from 'react-native-svg';
-import { WvCard } from '../../components/ui/WvCard.js';
-import { WvButton } from '../../components/ui/WvButton.js';
-import { useTheme } from '../../theme/index.js';
+import { WvCard } from '../../components/ui/WvCard';
+import { WvButton } from '../../components/ui/WvButton';
+import { useTheme } from '../../theme/index';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { CompositeNavigationProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { MainTabParamList, RootStackParamList } from '../../navigation/types.js';
+import type { MainTabParamList, RootStackParamList } from '../../navigation/types';
 
 interface ActivityScreenProps {
   navigation: CompositeNavigationProp<

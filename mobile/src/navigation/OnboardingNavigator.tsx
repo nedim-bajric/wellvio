@@ -6,8 +6,8 @@ import {
   DisclaimerScreen,
   PlanSelectionScreen,
   SuccessScreen,
-} from '../screens/onboarding/index.js';
-import type { OnboardingStackParamList } from './types.js';
+} from '../screens/onboarding/index';
+import type { OnboardingStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<OnboardingStackParamList>();
 

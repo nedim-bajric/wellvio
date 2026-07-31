@@ -1,7 +1,7 @@
 import { useColorScheme } from 'react-native';
-import { getColors, type ThemeColors, type ThemeMode } from './colors.js';
-import { fontSizes, fontWeights, lineHeights } from './typography.js';
-import { spacing, radii } from './spacing.js';
+import { getColors, type ThemeColors, type ThemeMode } from './colors';
+import { fontSizes, fontWeights, lineHeights } from './typography';
+import { spacing, radii } from './spacing';
 
 export interface Theme {
   mode: ThemeMode;
@@ -39,6 +39,6 @@ export function createStaticTheme(mode: ThemeMode): Theme {
   };
 }
 
-export * from './colors.js';
-export * from './typography.js';
-export * from './spacing.js';
+export * from './colors';
+export * from './typography';
+export * from './spacing';

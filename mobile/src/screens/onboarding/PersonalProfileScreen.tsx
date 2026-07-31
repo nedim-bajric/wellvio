@@ -6,15 +6,15 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { WvBackButton } from '../../components/ui/WvBackButton.js';
-import { WvButton } from '../../components/ui/WvButton.js';
-import { WvInput } from '../../components/ui/WvInput.js';
-import { WvProgressBar } from '../../components/ui/WvProgressBar.js';
-import { useTheme } from '../../theme/index.js';
-import { useOnboarding } from '../../contexts/OnboardingContext.js';
+import { WvBackButton } from '../../components/ui/WvBackButton';
+import { WvButton } from '../../components/ui/WvButton';
+import { WvInput } from '../../components/ui/WvInput';
+import { WvProgressBar } from '../../components/ui/WvProgressBar';
+import { useTheme } from '../../theme/index';
+import { useOnboarding } from '../../contexts/OnboardingContext';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { OnboardingStackParamList } from '../../navigation/types.js';
-import type { Gender } from '../../types/onboarding.js';
+import type { OnboardingStackParamList } from '../../navigation/types';
+import type { Gender } from '../../types/onboarding';
 
 interface PersonalProfileScreenProps {
   navigation: NativeStackNavigationProp<OnboardingStackParamList, 'PersonalProfile'>;

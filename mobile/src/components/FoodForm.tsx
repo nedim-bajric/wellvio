@@ -6,7 +6,7 @@ import {
   Button,
   StyleSheet,
 } from 'react-native';
-import type { CreateFoodData, Food } from '../types/food.js';
+import type { CreateFoodData, Food } from '../types/food';
 
 interface FoodFormProps {
   initial?: Food;

@@ -6,13 +6,13 @@ import {
   ScrollView,
 } from 'react-native';
 import { ArrowLeft, Target, TrendingDown, Flame } from 'lucide-react-native';
-import { WvIconButton } from '../../components/ui/WvIconButton.js';
-import { WvCard } from '../../components/ui/WvCard.js';
-import { WvInput } from '../../components/ui/WvInput.js';
-import { WvButton } from '../../components/ui/WvButton.js';
-import { useTheme } from '../../theme/index.js';
+import { WvIconButton } from '../../components/ui/WvIconButton';
+import { WvCard } from '../../components/ui/WvCard';
+import { WvInput } from '../../components/ui/WvInput';
+import { WvButton } from '../../components/ui/WvButton';
+import { useTheme } from '../../theme/index';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../../navigation/types.js';
+import type { RootStackParamList } from '../../navigation/types';
 
 interface GoalsTargetsScreenProps {
   navigation: NativeStackNavigationProp<RootStackParamList, 'GoalsTargets'>;

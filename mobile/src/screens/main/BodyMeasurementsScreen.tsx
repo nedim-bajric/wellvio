@@ -5,12 +5,12 @@ import {
   ScrollView,
 } from 'react-native';
 import { ArrowLeft } from 'lucide-react-native';
-import { WvButton } from '../../components/ui/WvButton.js';
-import { WvIconButton } from '../../components/ui/WvIconButton.js';
-import { WvCard } from '../../components/ui/WvCard.js';
-import { useTheme } from '../../theme/index.js';
+import { WvButton } from '../../components/ui/WvButton';
+import { WvIconButton } from '../../components/ui/WvIconButton';
+import { WvCard } from '../../components/ui/WvCard';
+import { useTheme } from '../../theme/index';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../../navigation/types.js';
+import type { RootStackParamList } from '../../navigation/types';
 
 interface BodyMeasurementsScreenProps {
   navigation: NativeStackNavigationProp<RootStackParamList, 'BodyMeasurements'>;

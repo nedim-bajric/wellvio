@@ -7,13 +7,13 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
-import { WvInput } from '../../components/ui/WvInput.js';
-import { WvButton } from '../../components/ui/WvButton.js';
-import { WvBackButton } from '../../components/ui/WvBackButton.js';
-import { WvProgressBar } from '../../components/ui/WvProgressBar.js';
-import { useTheme } from '../../theme/index.js';
+import { WvInput } from '../../components/ui/WvInput';
+import { WvButton } from '../../components/ui/WvButton';
+import { WvBackButton } from '../../components/ui/WvBackButton';
+import { WvProgressBar } from '../../components/ui/WvProgressBar';
+import { useTheme } from '../../theme/index';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../../navigation/types.js';
+import type { RootStackParamList } from '../../navigation/types';
 
 interface RegisterScreenProps {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Register'>;

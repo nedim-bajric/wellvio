@@ -10,15 +10,15 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
-import { foodApi } from '../api/foodApi.js';
-import { logEntryApi } from '../api/logEntryApi.js';
-import { getErrorMessage } from '../utils/errorMessage.js';
-import { formatToday } from '../utils/date.js';
-import type { Food } from '../types/food.js';
-import type { LogEntry, MealSlot } from '../types/logEntry.js';
-import { MEAL_SLOTS } from '../types/logEntry.js';
+import { foodApi } from '../api/foodApi';
+import { logEntryApi } from '../api/logEntryApi';
+import { getErrorMessage } from '../utils/errorMessage';
+import { formatToday } from '../utils/date';
+import type { Food } from '../types/food';
+import type { LogEntry, MealSlot } from '../types/logEntry';
+import { MEAL_SLOTS } from '../types/logEntry';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import type { MainTabParamList } from '../navigation/types.js';
+import type { MainTabParamList } from '../navigation/types';
 
 type LogNavigationProp = BottomTabNavigationProp<MainTabParamList, 'Diary'>;
 

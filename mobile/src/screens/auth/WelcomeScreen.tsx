@@ -5,10 +5,10 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import Svg, { Circle, Text as SvgText } from 'react-native-svg';
-import { WvButton } from '../../components/ui/WvButton.js';
-import { useTheme } from '../../theme/index.js';
+import { WvButton } from '../../components/ui/WvButton';
+import { useTheme } from '../../theme/index';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../../navigation/types.js';
+import type { RootStackParamList } from '../../navigation/types';
 
 interface WelcomeScreenProps {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Welcome'>;

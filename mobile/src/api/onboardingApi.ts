@@ -1,11 +1,11 @@
-import { apiClient } from './client.js';
+import { apiClient } from './client';
 import type {
   CreateProfileData,
   Plan,
   PlanOptionsResult,
   PlanRate,
   Profile,
-} from '../types/onboarding.js';
+} from '../types/onboarding';
 
 const ONBOARDING_PATH = '/onboarding';
 

@@ -8,11 +8,11 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
-import { foodApi } from '../api/foodApi.js';
-import { FoodForm } from '../components/FoodForm.js';
-import { FoodListItem } from '../components/FoodListItem.js';
-import { getErrorMessage } from '../utils/errorMessage.js';
-import type { CreateFoodData, Food, UpdateFoodData } from '../types/food.js';
+import { foodApi } from '../api/foodApi';
+import { FoodForm } from '../components/FoodForm';
+import { FoodListItem } from '../components/FoodListItem';
+import { getErrorMessage } from '../utils/errorMessage';
+import type { CreateFoodData, Food, UpdateFoodData } from '../types/food';
 
 export function FoodCatalogScreen() {
   const [foods, setFoods] = useState<Food[]>([]);

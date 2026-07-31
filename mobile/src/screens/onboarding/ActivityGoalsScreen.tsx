@@ -5,15 +5,15 @@ import {
   ScrollView,
 } from 'react-native';
 import { Check } from 'lucide-react-native';
-import { WvBackButton } from '../../components/ui/WvBackButton.js';
-import { WvButton } from '../../components/ui/WvButton.js';
-import { WvProgressBar } from '../../components/ui/WvProgressBar.js';
-import { WvCard } from '../../components/ui/WvCard.js';
-import { useTheme } from '../../theme/index.js';
-import { useOnboarding, type WeeklyRate } from '../../contexts/OnboardingContext.js';
+import { WvBackButton } from '../../components/ui/WvBackButton';
+import { WvButton } from '../../components/ui/WvButton';
+import { WvProgressBar } from '../../components/ui/WvProgressBar';
+import { WvCard } from '../../components/ui/WvCard';
+import { useTheme } from '../../theme/index';
+import { useOnboarding, type WeeklyRate } from '../../contexts/OnboardingContext';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { OnboardingStackParamList } from '../../navigation/types.js';
-import type { ActivityLevel } from '../../types/onboarding.js';
+import type { OnboardingStackParamList } from '../../navigation/types';
+import type { ActivityLevel } from '../../types/onboarding';
 
 interface ActivityGoalsScreenProps {
   navigation: NativeStackNavigationProp<OnboardingStackParamList, 'ActivityGoals'>;

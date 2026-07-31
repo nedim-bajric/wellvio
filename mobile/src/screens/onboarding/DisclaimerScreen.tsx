@@ -5,15 +5,15 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import { WvBackButton } from '../../components/ui/WvBackButton.js';
-import { WvButton } from '../../components/ui/WvButton.js';
-import { WvCheckbox } from '../../components/ui/WvCheckbox.js';
-import { WvProgressBar } from '../../components/ui/WvProgressBar.js';
-import { WvCard } from '../../components/ui/WvCard.js';
-import { useTheme } from '../../theme/index.js';
-import { useOnboarding } from '../../contexts/OnboardingContext.js';
+import { WvBackButton } from '../../components/ui/WvBackButton';
+import { WvButton } from '../../components/ui/WvButton';
+import { WvCheckbox } from '../../components/ui/WvCheckbox';
+import { WvProgressBar } from '../../components/ui/WvProgressBar';
+import { WvCard } from '../../components/ui/WvCard';
+import { useTheme } from '../../theme/index';
+import { useOnboarding } from '../../contexts/OnboardingContext';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { OnboardingStackParamList } from '../../navigation/types.js';
+import type { OnboardingStackParamList } from '../../navigation/types';
 
 interface DisclaimerScreenProps {
   navigation: NativeStackNavigationProp<OnboardingStackParamList, 'Disclaimer'>;

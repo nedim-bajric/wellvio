@@ -1,10 +1,10 @@
-import { apiClient } from './client.js';
+import { apiClient } from './client';
 import type {
   CreateLogEntryData,
   DailyDashboard,
   LogEntry,
   UpdateLogEntryData,
-} from '../types/logEntry.js';
+} from '../types/logEntry';
 
 const LOG_ENTRIES_PATH = '/log-entries';
 

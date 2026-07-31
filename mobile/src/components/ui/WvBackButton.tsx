@@ -1,6 +1,6 @@
-import { WvIconButton } from './WvIconButton.js';
+import { WvIconButton } from './WvIconButton';
 import { ArrowLeft } from 'lucide-react-native';
-import { useTheme } from '../../theme/index.js';
+import { useTheme } from '../../theme/index';
 
 interface WvBackButtonProps {
   onPress: () => void;

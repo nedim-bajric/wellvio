@@ -1,4 +1,4 @@
-import type { Nutrients } from './food.js';
+import type { Nutrients } from './food';
 
 export type Gender = 'male' | 'female';
 

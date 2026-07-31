@@ -3,7 +3,7 @@ import {
   StyleSheet,
   type ViewStyle,
 } from 'react-native';
-import { useTheme } from '../../theme/index.js';
+import { useTheme } from '../../theme/index';
 
 interface WvIconButtonProps {
   icon: React.ReactNode;
