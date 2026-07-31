@@ -16,7 +16,7 @@ import type {
 
 export interface OnboardingForm {
   gender: Gender;
-  age: string;
+  dateOfBirth: string;
   heightCm: string;
   currentWeightKg: string;
   goalWeightKg: string;
@@ -27,7 +27,7 @@ export interface OnboardingForm {
 
 const INITIAL_FORM: OnboardingForm = {
   gender: 'male',
-  age: '',
+  dateOfBirth: '',
   heightCm: '',
   currentWeightKg: '',
   goalWeightKg: '',
@@ -37,6 +37,19 @@ const INITIAL_FORM: OnboardingForm = {
 };
 
 export type WeeklyRate = '0.5lb' | '1lb' | '1.5lb' | 'maintain';
+
+function computeAge(dateOfBirth: string): number | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth)) return null;
+  const dob = new Date(`${dateOfBirth}T00:00:00`);
+  if (Number.isNaN(dob.getTime())) return null;
+  const now = new Date();
+  let age = now.getFullYear() - dob.getFullYear();
+  const monthDiff = now.getMonth() - dob.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < dob.getDate())) {
+    age -= 1;
+  }
+  return age >= 0 && age <= 120 ? age : null;
+}
 
 interface OnboardingContextValue {
   form: OnboardingForm;
@@ -71,13 +84,13 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const parseProfile = (): { data: CreateProfileData } | { error: string } => {
-    const parsedAge = parseInt(form.age, 10);
+    const age = computeAge(form.dateOfBirth);
     const parsedHeight = parseFloat(form.heightCm);
     const parsedCurrentWeight = parseFloat(form.currentWeightKg);
     const parsedGoalWeight = parseFloat(form.goalWeightKg);
 
     if (
-      Number.isNaN(parsedAge) ||
+      age === null ||
       Number.isNaN(parsedHeight) ||
       Number.isNaN(parsedCurrentWeight) ||
       Number.isNaN(parsedGoalWeight) ||
@@ -96,7 +109,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     return {
       data: {
         gender: form.gender,
-        age: parsedAge,
+        age,
         heightCm: parsedHeight,
         currentWeightKg: parsedCurrentWeight,
         goalWeightKg: parsedGoalWeight,

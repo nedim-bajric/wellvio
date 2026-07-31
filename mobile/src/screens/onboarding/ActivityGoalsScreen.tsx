@@ -9,6 +9,7 @@ import { WvBackButton } from '../../components/ui/WvBackButton';
 import { WvButton } from '../../components/ui/WvButton';
 import { WvProgressBar } from '../../components/ui/WvProgressBar';
 import { WvCard } from '../../components/ui/WvCard';
+import { WvInput } from '../../components/ui/WvInput';
 import { useTheme } from '../../theme/index';
 import { useOnboarding, type WeeklyRate } from '../../contexts/OnboardingContext';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -67,6 +68,8 @@ export function ActivityGoalsScreen({ navigation }: ActivityGoalsScreenProps) {
   const deficit = deficitMap[weeklyRate] ?? 0;
   const target = tdee - deficit;
   const protein = Math.round((target * 0.3) / 4);
+
+  const canContinue = form.goalWeightKg !== '' && form.targetDate !== '';
 
   return (
     <View
@@ -161,6 +164,24 @@ export function ActivityGoalsScreen({ navigation }: ActivityGoalsScreenProps) {
           </View>
         </View>
 
+        <View style={styles.row}>
+          <WvInput
+            label="Goal weight (kg)"
+            value={form.goalWeightKg}
+            onChangeText={(value) => updateForm('goalWeightKg', value)}
+            placeholder="kg"
+            keyboardType="decimal-pad"
+            style={styles.half}
+          />
+          <WvInput
+            label="Target date"
+            value={form.targetDate}
+            onChangeText={(value) => updateForm('targetDate', value)}
+            placeholder="YYYY-MM-DD"
+            style={styles.half}
+          />
+        </View>
+
         <View style={styles.field}>
           <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
             Weekly goal
@@ -226,6 +247,7 @@ export function ActivityGoalsScreen({ navigation }: ActivityGoalsScreenProps) {
         <WvButton
           title="Continue"
           onPress={() => navigation.navigate('Disclaimer')}
+          disabled={!canContinue}
         />
       </View>
     </View>
@@ -275,6 +297,13 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 12,
     fontWeight: '500',
+  },
+  row: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  half: {
+    flex: 1,
   },
   activityList: {
     gap: 8,

@@ -10,6 +10,7 @@ import { WvBackButton } from '../../components/ui/WvBackButton';
 import { WvButton } from '../../components/ui/WvButton';
 import { WvInput } from '../../components/ui/WvInput';
 import { WvProgressBar } from '../../components/ui/WvProgressBar';
+import { DateOfBirthField } from '../../components/DateOfBirthField';
 import { useTheme } from '../../theme/index';
 import { useOnboarding } from '../../contexts/OnboardingContext';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -30,11 +31,9 @@ export function PersonalProfileScreen({ navigation }: PersonalProfileScreenProps
   const { form, updateForm } = useOnboarding();
 
   const canContinue =
-    form.age !== '' &&
+    form.dateOfBirth !== '' &&
     form.heightCm !== '' &&
-    form.currentWeightKg !== '' &&
-    form.goalWeightKg !== '' &&
-    form.targetDate !== '';
+    form.currentWeightKg !== '';
 
   return (
     <KeyboardAvoidingView
@@ -100,12 +99,9 @@ export function PersonalProfileScreen({ navigation }: PersonalProfileScreenProps
           </View>
         </View>
 
-        <WvInput
-          label="Age"
-          value={form.age}
-          onChangeText={(value) => updateForm('age', value)}
-          placeholder="Years"
-          keyboardType="number-pad"
+        <DateOfBirthField
+          value={form.dateOfBirth}
+          onChange={(value) => updateForm('dateOfBirth', value)}
         />
 
         <WvInput
@@ -116,30 +112,12 @@ export function PersonalProfileScreen({ navigation }: PersonalProfileScreenProps
           keyboardType="decimal-pad"
         />
 
-        <View style={styles.row}>
-          <WvInput
-            label="Current weight (kg)"
-            value={form.currentWeightKg}
-            onChangeText={(value) => updateForm('currentWeightKg', value)}
-            placeholder="kg"
-            keyboardType="decimal-pad"
-            style={styles.half}
-          />
-          <WvInput
-            label="Goal weight (kg)"
-            value={form.goalWeightKg}
-            onChangeText={(value) => updateForm('goalWeightKg', value)}
-            placeholder="kg"
-            keyboardType="decimal-pad"
-            style={styles.half}
-          />
-        </View>
-
         <WvInput
-          label="Target date"
-          value={form.targetDate}
-          onChangeText={(value) => updateForm('targetDate', value)}
-          placeholder="YYYY-MM-DD"
+          label="Current weight (kg)"
+          value={form.currentWeightKg}
+          onChangeText={(value) => updateForm('currentWeightKg', value)}
+          placeholder="kg"
+          keyboardType="decimal-pad"
         />
       </ScrollView>
 
@@ -203,13 +181,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   genderButton: {
-    flex: 1,
-  },
-  row: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  half: {
     flex: 1,
   },
   footer: {
