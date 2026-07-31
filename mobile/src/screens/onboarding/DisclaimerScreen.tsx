@@ -29,15 +29,12 @@ const bullets = [
 
 export function DisclaimerScreen({ navigation }: DisclaimerScreenProps) {
   const theme = useTheme();
-  const { form, updateForm, createProfile, loadPlanOptions, loading, error } =
-    useOnboarding();
+  const { form, updateForm, createProfile, loading, error } = useOnboarding();
 
-  const handleActivate = async () => {
+  const handleContinue = async () => {
     const created = await createProfile();
-    if (!created) return;
-    const loaded = await loadPlanOptions();
-    if (loaded) {
-      navigation.navigate('PlanSelection');
+    if (created) {
+      navigation.navigate('Success');
     }
   };
 
@@ -49,9 +46,9 @@ export function DisclaimerScreen({ navigation }: DisclaimerScreenProps) {
       ]}
     >
       <View style={styles.header}>
-        <WvBackButton onPress={() => navigation.navigate('ActivityGoals')} />
+        <WvBackButton onPress={() => navigation.navigate('PersonalProfile')} />
         <Text style={[styles.step, { color: theme.colors.textSecondary }]}>
-          3 of 3
+          2 of 2
         </Text>
       </View>
 
@@ -145,8 +142,8 @@ export function DisclaimerScreen({ navigation }: DisclaimerScreenProps) {
 
       <View style={styles.footer}>
         <WvButton
-          title={loading ? 'Loading...' : 'Activate my plan'}
-          onPress={handleActivate}
+          title={loading ? 'Saving...' : 'Continue'}
+          onPress={handleContinue}
           disabled={!form.healthDisclaimerAcknowledged || loading}
         />
       </View>

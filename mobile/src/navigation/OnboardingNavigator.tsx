@@ -2,9 +2,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
   CarouselScreen,
   PersonalProfileScreen,
-  ActivityGoalsScreen,
   DisclaimerScreen,
-  PlanSelectionScreen,
   SuccessScreen,
 } from '../screens/onboarding/index';
 import type { OnboardingStackParamList } from './types';
@@ -21,9 +19,7 @@ export function OnboardingNavigator() {
     >
       <Stack.Screen name="Carousel" component={CarouselScreen} />
       <Stack.Screen name="PersonalProfile" component={PersonalProfileScreen} />
-      <Stack.Screen name="ActivityGoals" component={ActivityGoalsScreen} />
       <Stack.Screen name="Disclaimer" component={DisclaimerScreen} />
-      <Stack.Screen name="PlanSelection" component={PlanSelectionScreen} />
       <Stack.Screen name="Success" component={SuccessScreen} />
     </Stack.Navigator>
   );

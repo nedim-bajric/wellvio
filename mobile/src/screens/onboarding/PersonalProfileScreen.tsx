@@ -46,7 +46,7 @@ export function PersonalProfileScreen({ navigation }: PersonalProfileScreenProps
       <View style={styles.header}>
         <WvBackButton onPress={() => navigation.navigate('Carousel')} />
         <Text style={[styles.step, { color: theme.colors.textSecondary }]}>
-          1 of 3
+          1 of 2
         </Text>
       </View>
 
@@ -55,7 +55,7 @@ export function PersonalProfileScreen({ navigation }: PersonalProfileScreenProps
         keyboardShouldPersistTaps="handled"
       >
         <WvProgressBar
-          progress={1 / 3}
+          progress={1 / 2}
           color={theme.colors.primary}
           bgColor={theme.colors.input}
           height={4}
@@ -124,7 +124,7 @@ export function PersonalProfileScreen({ navigation }: PersonalProfileScreenProps
       <View style={styles.footer}>
         <WvButton
           title="Continue"
-          onPress={() => navigation.navigate('ActivityGoals')}
+          onPress={() => navigation.navigate('Disclaimer')}
           disabled={!canContinue}
         />
       </View>

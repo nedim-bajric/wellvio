@@ -11,9 +11,7 @@ export type AuthStackParamList = {
 export type OnboardingStackParamList = {
   Carousel: undefined;
   PersonalProfile: undefined;
-  ActivityGoals: undefined;
   Disclaimer: undefined;
-  PlanSelection: undefined;
   Success: undefined;
 };
 
