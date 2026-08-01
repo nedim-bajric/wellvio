@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { ArrowLeft, Droplets } from 'lucide-react-native';
 import { WvIconButton } from '../../components/ui/WvIconButton';
+import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
 import Svg, { Path, ClipPath, Defs, Rect, Text as SvgText } from 'react-native-svg';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -31,12 +32,7 @@ export function HydrationScreen({ navigation }: HydrationScreenProps) {
   const pct = Math.min((ml / goal) * 100, 100);
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background },
-      ]}
-    >
+    <SafeScreen>
       <View style={styles.header}>
         <WvIconButton
           icon={<ArrowLeft size={20} color={theme.colors.textPrimary} />}
@@ -185,20 +181,16 @@ export function HydrationScreen({ navigation }: HydrationScreenProps) {
           ))}
         </View>
       </ScrollView>
-    </View>
+    </SafeScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     paddingHorizontal: 16,
-    paddingTop: 16,
     paddingBottom: 12,
   },
   title: {

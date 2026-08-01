@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { Moon, Droplets, Activity, Heart, ChevronRight } from 'lucide-react-native';
 import { WvCard } from '../../components/ui/WvCard';
+import { SafeScreen, useTabBarPadding } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
 import type { CompositeNavigationProp } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -23,24 +24,25 @@ interface HealthScreenProps {
 
 export function HealthScreen({ navigation }: HealthScreenProps) {
   const theme = useTheme();
+  const tabBarPadding = useTabBarPadding();
   const [hydration, setHydration] = useState(1500);
   const hydrationGoal = 2500;
   const hydrationPct = Math.min((hydration / hydrationGoal) * 100, 100);
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background },
-      ]}
-    >
+    <SafeScreen hasTabBar>
       <View style={styles.topBar}>
         <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
           Health
         </Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.scroll,
+          { paddingBottom: tabBarPadding },
+        ]}
+      >
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={() => navigation.navigate('SleepDetail')}
@@ -272,17 +274,13 @@ export function HealthScreen({ navigation }: HealthScreenProps) {
           </TouchableOpacity>
         </WvCard>
       </ScrollView>
-    </View>
+    </SafeScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   topBar: {
     paddingHorizontal: 20,
-    paddingTop: 16,
     paddingBottom: 8,
   },
   title: {

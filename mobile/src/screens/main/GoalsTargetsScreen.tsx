@@ -10,6 +10,7 @@ import { WvIconButton } from '../../components/ui/WvIconButton';
 import { WvCard } from '../../components/ui/WvCard';
 import { WvInput } from '../../components/ui/WvInput';
 import { WvButton } from '../../components/ui/WvButton';
+import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
@@ -50,12 +51,7 @@ export function GoalsTargetsScreen({ navigation }: GoalsTargetsScreenProps) {
   const fatPct = totalMacroCalories > 0 ? (fatGrams * 9) / totalMacroCalories : 0;
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background },
-      ]}
-    >
+    <SafeScreen>
       <View style={styles.header}>
         <WvIconButton
           icon={<ArrowLeft size={20} color={theme.colors.textPrimary} />}
@@ -272,20 +268,16 @@ export function GoalsTargetsScreen({ navigation }: GoalsTargetsScreenProps) {
           onPress={() => navigation.goBack()}
         />
       </View>
-    </View>
+    </SafeScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     paddingHorizontal: 16,
-    paddingTop: 16,
     paddingBottom: 12,
   },
   title: {

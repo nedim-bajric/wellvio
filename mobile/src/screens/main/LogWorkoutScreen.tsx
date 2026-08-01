@@ -11,6 +11,7 @@ import { ArrowLeft, Plus, Minus, Flame } from 'lucide-react-native';
 import { WvButton } from '../../components/ui/WvButton';
 import { WvIconButton } from '../../components/ui/WvIconButton';
 import { WvCard } from '../../components/ui/WvCard';
+import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
@@ -39,12 +40,7 @@ export function LogWorkoutScreen({ navigation }: LogWorkoutScreenProps) {
   const calories = Math.round(duration * 8.5);
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background },
-      ]}
-    >
+    <SafeScreen>
       <View style={styles.header}>
         <WvIconButton
           icon={<ArrowLeft size={20} color={theme.colors.textPrimary} />}
@@ -199,20 +195,16 @@ export function LogWorkoutScreen({ navigation }: LogWorkoutScreenProps) {
           style={{ backgroundColor: theme.colors.activityOrange }}
         />
       </View>
-    </View>
+    </SafeScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     paddingHorizontal: 16,
-    paddingTop: 16,
     paddingBottom: 12,
   },
   title: {

@@ -11,6 +11,7 @@ import { Check } from 'lucide-react-native';
 import { WvInput } from '../../components/ui/WvInput';
 import { WvButton } from '../../components/ui/WvButton';
 import { WvBackButton } from '../../components/ui/WvBackButton';
+import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
@@ -34,98 +35,97 @@ export function ForgotPasswordScreen({ navigation }: ForgotPasswordScreenProps) 
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background },
-      ]}
-    >
-      <View style={styles.header}>
-        <WvBackButton onPress={() => navigation.navigate('Login')} />
-      </View>
-
-      <ScrollView
-        contentContainerStyle={styles.scroll}
-        keyboardShouldPersistTaps="handled"
+    <SafeScreen>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
       >
-        {!sent ? (
-          <>
-            <View style={styles.intro}>
-              <Text
+        <View style={styles.header}>
+          <WvBackButton onPress={() => navigation.navigate('Login')} />
+        </View>
+
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+        >
+          {!sent ? (
+            <>
+              <View style={styles.intro}>
+                <Text
+                  style={[
+                    styles.title,
+                    { color: theme.colors.textPrimary },
+                  ]}
+                >
+                  Reset password
+                </Text>
+                <Text
+                  style={[
+                    styles.subtitle,
+                    { color: theme.colors.textSecondary },
+                  ]}
+                >
+                  Enter your email and we&apos;ll send you a link.
+                </Text>
+              </View>
+
+              <WvInput
+                label="Email"
+                value={email}
+                onChangeText={setEmail}
+                placeholder="you@example.com"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+
+              <View style={styles.actions}>
+                <WvButton
+                  title="Send link"
+                  onPress={handleSend}
+                  loading={loading}
+                  disabled={!email}
+                />
+              </View>
+            </>
+          ) : (
+            <View style={styles.success}>
+              <View
                 style={[
-                  styles.title,
-                  { color: theme.colors.textPrimary },
+                  styles.iconCircle,
+                  { backgroundColor: theme.colors.successBackground },
                 ]}
               >
-                Reset password
-              </Text>
-              <Text
-                style={[
-                  styles.subtitle,
-                  { color: theme.colors.textSecondary },
-                ]}
-              >
-                Enter your email and we&apos;ll send you a link.
-              </Text>
-            </View>
-
-            <WvInput
-              label="Email"
-              value={email}
-              onChangeText={setEmail}
-              placeholder="you@example.com"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-
-            <View style={styles.actions}>
+                <Check size={40} color={theme.colors.primary} strokeWidth={3} />
+              </View>
+              <View style={styles.successText}>
+                <Text
+                  style={[
+                    styles.successTitle,
+                    { color: theme.colors.textPrimary },
+                  ]}
+                >
+                  Check your email
+                </Text>
+                <Text
+                  style={[
+                    styles.successBody,
+                    { color: theme.colors.textSecondary },
+                  ]}
+                >
+                  We sent a reset link to{' '}
+                  <Text style={{ color: theme.colors.textPrimary }}>{email}</Text>
+                </Text>
+              </View>
               <WvButton
-                title="Send link"
-                onPress={handleSend}
-                loading={loading}
-                disabled={!email}
+                title="Back to sign in"
+                onPress={() => navigation.navigate('Login')}
               />
             </View>
-          </>
-        ) : (
-          <View style={styles.success}>
-            <View
-              style={[
-                styles.iconCircle,
-                { backgroundColor: theme.colors.successBackground },
-              ]}
-            >
-              <Check size={40} color={theme.colors.primary} strokeWidth={3} />
-            </View>
-            <View style={styles.successText}>
-              <Text
-                style={[
-                  styles.successTitle,
-                  { color: theme.colors.textPrimary },
-                ]}
-              >
-                Check your email
-              </Text>
-              <Text
-                style={[
-                  styles.successBody,
-                  { color: theme.colors.textSecondary },
-                ]}
-              >
-                We sent a reset link to{' '}
-                <Text style={{ color: theme.colors.textPrimary }}>{email}</Text>
-              </Text>
-            </View>
-            <WvButton
-              title="Back to sign in"
-              onPress={() => navigation.navigate('Login')}
-            />
-          </View>
-        )}
-      </ScrollView>
-    </KeyboardAvoidingView>
+          )}
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeScreen>
   );
 }
 
@@ -135,7 +135,6 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 20,
-    paddingTop: 8,
     paddingBottom: 8,
   },
   scroll: {

@@ -9,6 +9,7 @@ import { Flame } from 'lucide-react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { WvCard } from '../../components/ui/WvCard';
 import { WvButton } from '../../components/ui/WvButton';
+import { SafeScreen, useTabBarPadding } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { CompositeNavigationProp } from '@react-navigation/native';
@@ -43,14 +44,10 @@ const rings = [
 
 export function ActivityScreen({ navigation }: ActivityScreenProps) {
   const theme = useTheme();
+  const tabBarPadding = useTabBarPadding();
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background },
-      ]}
-    >
+    <SafeScreen hasTabBar>
       <View style={styles.topBar}>
         <View>
           <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
@@ -66,7 +63,12 @@ export function ActivityScreen({ navigation }: ActivityScreenProps) {
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.scroll,
+          { paddingBottom: tabBarPadding },
+        ]}
+      >
         <WvCard style={styles.ringsCard}>
           <Text
             style={[
@@ -246,17 +248,13 @@ export function ActivityScreen({ navigation }: ActivityScreenProps) {
           style={{ backgroundColor: theme.colors.activityOrange }}
         />
       </ScrollView>
-    </View>
+    </SafeScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   topBar: {
     paddingHorizontal: 20,
-    paddingTop: 16,
     paddingBottom: 8,
   },
   title: {

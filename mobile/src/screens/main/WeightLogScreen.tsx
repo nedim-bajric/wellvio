@@ -14,6 +14,7 @@ import Svg, { Polyline, Circle } from 'react-native-svg';
 import { WvButton } from '../../components/ui/WvButton';
 import { WvIconButton } from '../../components/ui/WvIconButton';
 import { WvCard } from '../../components/ui/WvCard';
+import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
 import { weightApi } from '../../api/weightApi';
 import { getErrorMessage } from '../../utils/errorMessage';
@@ -106,12 +107,7 @@ export function WeightLogScreen({ navigation }: WeightLogScreenProps) {
     unit === 'kg' ? trendValue.toFixed(2) : kgToLb(trendValue).toFixed(2);
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background },
-      ]}
-    >
+    <SafeScreen>
       <View style={styles.header}>
         <WvIconButton
           icon={<ArrowLeft size={20} color={theme.colors.textPrimary} />}
@@ -313,7 +309,7 @@ export function WeightLogScreen({ navigation }: WeightLogScreenProps) {
           loading={submitting}
         />
       </View>
-    </View>
+    </SafeScreen>
   );
 }
 
@@ -339,7 +335,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
     paddingHorizontal: 16,
-    paddingTop: 16,
     paddingBottom: 12,
   },
   title: {

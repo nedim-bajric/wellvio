@@ -10,7 +10,6 @@ import {
   Platform,
 } from 'react-native';
 import { Search, X, Barcode, Mic, Plus } from 'lucide-react-native';
-import { WvButton } from '../../components/ui/WvButton';
 import { WvIconButton } from '../../components/ui/WvIconButton';
 import { useTheme } from '../../theme/index';
 import { foodApi } from '../../api/foodApi';
@@ -18,6 +17,7 @@ import { logEntryApi } from '../../api/logEntryApi';
 import { getErrorMessage } from '../../utils/errorMessage';
 import { formatToday } from '../../utils/date';
 import { getFoodIcon } from '../../utils/foodIcon';
+import { SafeScreen } from '../../components/SafeScreen';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
 import type { Food } from '../../types/food';
@@ -101,176 +101,175 @@ export function AddFoodScreen({ navigation, route }: AddFoodScreenProps) {
   }, [activeTab, recentEntries, frequentFoods, foods, query]);
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background },
-      ]}
-    >
-      <View style={styles.header}>
-        <WvIconButton
-          icon={<X size={20} color={theme.colors.textPrimary} />}
-          onPress={() => navigation.goBack()}
-        />
-        <View
-          style={[
-            styles.searchBar,
-            { backgroundColor: theme.colors.input },
-          ]}
-        >
-          <Search size={16} color={theme.colors.textTertiary} />
-          <TextInput
-            value={query}
-            onChangeText={setQuery}
-            placeholder="Search foods, brands..."
-            placeholderTextColor={theme.colors.textTertiary}
-            style={[
-              styles.searchInput,
-              { color: theme.colors.textPrimary },
-            ]}
-            autoFocus
+    <SafeScreen>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+      >
+        <View style={styles.header}>
+          <WvIconButton
+            icon={<X size={20} color={theme.colors.textPrimary} />}
+            onPress={() => navigation.goBack()}
           />
-        </View>
-        <WvIconButton
-          icon={<Barcode size={20} color={theme.colors.textSecondary} />}
-          onPress={() => {}}
-        />
-        <WvIconButton
-          icon={<Mic size={20} color={theme.colors.textSecondary} />}
-          onPress={() => {}}
-        />
-      </View>
-
-      <View style={styles.tabs}>
-        {tabs.map((tab) => (
-          <TouchableOpacity
-            key={tab}
-            onPress={() => setActiveTab(tab)}
+          <View
             style={[
-              styles.tab,
-              {
-                backgroundColor:
-                  activeTab === tab ? theme.colors.primary : theme.colors.input,
-              },
+              styles.searchBar,
+              { backgroundColor: theme.colors.input },
             ]}
           >
-            <Text
+            <Search size={16} color={theme.colors.textTertiary} />
+            <TextInput
+              value={query}
+              onChangeText={setQuery}
+              placeholder="Search foods, brands..."
+              placeholderTextColor={theme.colors.textTertiary}
               style={[
-                styles.tabText,
+                styles.searchInput,
+                { color: theme.colors.textPrimary },
+              ]}
+              autoFocus
+            />
+          </View>
+          <WvIconButton
+            icon={<Barcode size={20} color={theme.colors.textSecondary} />}
+            onPress={() => {}}
+          />
+          <WvIconButton
+            icon={<Mic size={20} color={theme.colors.textSecondary} />}
+            onPress={() => {}}
+          />
+        </View>
+
+        <View style={styles.tabs}>
+          {tabs.map((tab) => (
+            <TouchableOpacity
+              key={tab}
+              onPress={() => setActiveTab(tab)}
+              style={[
+                styles.tab,
                 {
-                  color:
-                    activeTab === tab ? '#000000' : theme.colors.textSecondary,
+                  backgroundColor:
+                    activeTab === tab ? theme.colors.primary : theme.colors.input,
                 },
               ]}
             >
-              {tab}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <TouchableOpacity
-        onPress={() => navigation.navigate('QuickAdd', { mealSlot: initialMealSlot })}
-        activeOpacity={0.8}
-        style={[
-          styles.quickAdd,
-          {
-            borderColor: theme.colors.border,
-            backgroundColor: theme.colors.card,
-          },
-        ]}
-      >
-        <Plus size={18} color={theme.colors.primary} />
-        <Text style={[styles.quickAddText, { color: theme.colors.textSecondary }]}>
-          Quick add calories & macros
-        </Text>
-      </TouchableOpacity>
-
-      <ScrollView contentContainerStyle={styles.list}>
-        {displayFoods.length === 0 ? (
-          <View style={styles.empty}>
-            <Search size={32} color={theme.colors.border} />
-            <Text style={[styles.emptyText, { color: theme.colors.textTertiary }]}>
-              {query ? `No results for "${query}"` : 'No foods found'}
-            </Text>
-            <TouchableOpacity onPress={() => {}}>
-              <Text style={[styles.createText, { color: theme.colors.primary }]}>
-                Create custom food
-              </Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          displayFoods.map((food) => (
-            <TouchableOpacity
-              key={food.id}
-              onPress={() =>
-                navigation.navigate('FoodDetail', {
-                  foodId: food.id,
-                  mealSlot: initialMealSlot,
-                })
-              }
-              style={[
-                styles.foodRow,
-                { borderBottomColor: theme.colors.border },
-              ]}
-            >
-              <View
+              <Text
                 style={[
-                  styles.iconBox,
-                  { backgroundColor: theme.colors.input },
+                  styles.tabText,
+                  {
+                    color:
+                      activeTab === tab ? '#000000' : theme.colors.textSecondary,
+                  },
                 ]}
               >
-                <Text style={styles.icon}>{getFoodIcon(food.name)}</Text>
-              </View>
-              <View style={styles.foodInfo}>
-                <Text
-                  style={[
-                    styles.foodName,
-                    { color: theme.colors.textPrimary },
-                  ]}
-                >
-                  {food.name}
-                </Text>
-                <Text
-                  style={[
-                    styles.foodBrand,
-                    { color: theme.colors.textTertiary },
-                  ]}
-                >
-                  {foodBrand(food)}
-                </Text>
-              </View>
-              <View style={styles.foodRight}>
-                <Text
-                  style={[
-                    styles.foodKcal,
-                    { color: theme.colors.textPrimary },
-                  ]}
-                >
-                  {Math.round(food.nutrientsPer100g.calories)}
-                </Text>
-                <Text
-                  style={[
-                    styles.foodKcalUnit,
-                    { color: theme.colors.textTertiary },
-                  ]}
-                >
-                  kcal/100g
-                </Text>
-              </View>
-              <Plus size={18} color={theme.colors.primary} />
+                {tab}
+              </Text>
             </TouchableOpacity>
-          ))
-        )}
-      </ScrollView>
+          ))}
+        </View>
 
-      {error && (
-        <Text style={[styles.error, { color: theme.colors.error }]}>
-          {error}
-        </Text>
-      )}
-    </KeyboardAvoidingView>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('QuickAdd', { mealSlot: initialMealSlot })}
+          activeOpacity={0.8}
+          style={[
+            styles.quickAdd,
+            {
+              borderColor: theme.colors.border,
+              backgroundColor: theme.colors.card,
+            },
+          ]}
+        >
+          <Plus size={18} color={theme.colors.primary} />
+          <Text style={[styles.quickAddText, { color: theme.colors.textSecondary }]}>
+            Quick add calories & macros
+          </Text>
+        </TouchableOpacity>
+
+        <ScrollView contentContainerStyle={styles.list}>
+          {displayFoods.length === 0 ? (
+            <View style={styles.empty}>
+              <Search size={32} color={theme.colors.border} />
+              <Text style={[styles.emptyText, { color: theme.colors.textTertiary }]}>
+                {query ? `No results for "${query}"` : 'No foods found'}
+              </Text>
+              <TouchableOpacity onPress={() => {}}>
+                <Text style={[styles.createText, { color: theme.colors.primary }]}>
+                  Create custom food
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            displayFoods.map((food) => (
+              <TouchableOpacity
+                key={food.id}
+                onPress={() =>
+                  navigation.navigate('FoodDetail', {
+                    foodId: food.id,
+                    mealSlot: initialMealSlot,
+                  })
+                }
+                style={[
+                  styles.foodRow,
+                  { borderBottomColor: theme.colors.border },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.iconBox,
+                    { backgroundColor: theme.colors.input },
+                  ]}
+                >
+                  <Text style={styles.icon}>{getFoodIcon(food.name)}</Text>
+                </View>
+                <View style={styles.foodInfo}>
+                  <Text
+                    style={[
+                      styles.foodName,
+                      { color: theme.colors.textPrimary },
+                    ]}
+                  >
+                    {food.name}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.foodBrand,
+                      { color: theme.colors.textTertiary },
+                    ]}
+                  >
+                    {foodBrand(food)}
+                  </Text>
+                </View>
+                <View style={styles.foodRight}>
+                  <Text
+                    style={[
+                      styles.foodKcal,
+                      { color: theme.colors.textPrimary },
+                    ]}
+                  >
+                    {Math.round(food.nutrientsPer100g.calories)}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.foodKcalUnit,
+                      { color: theme.colors.textTertiary },
+                    ]}
+                  >
+                    kcal/100g
+                  </Text>
+                </View>
+                <Plus size={18} color={theme.colors.primary} />
+              </TouchableOpacity>
+            ))
+          )}
+        </ScrollView>
+
+        {error && (
+          <Text style={[styles.error, { color: theme.colors.error }]}>
+            {error}
+          </Text>
+        )}
+      </KeyboardAvoidingView>
+    </SafeScreen>
   );
 }
 
@@ -283,7 +282,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     paddingHorizontal: 16,
-    paddingTop: 16,
     paddingBottom: 12,
   },
   searchBar: {

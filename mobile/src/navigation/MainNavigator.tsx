@@ -13,6 +13,7 @@ import {
   ProfileScreen,
 } from '../screens/main/index';
 import { useTheme } from '../theme/index';
+import { TAB_BAR_HEIGHT } from '../constants/layout';
 import type { MainTabParamList } from './types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -83,12 +84,14 @@ export function MainNavigator() {
           position: 'absolute',
           left: 16,
           right: 16,
-          bottom: insets.bottom + 8,
-          height: 72,
+          bottom: 0,
+          height: TAB_BAR_HEIGHT + insets.bottom,
+          paddingBottom: insets.bottom,
           backgroundColor: theme.colors.card,
           borderTopColor: theme.colors.border,
           borderTopWidth: 1,
-          borderRadius: 24,
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
           paddingHorizontal: 8,
           paddingTop: 8,
           shadowColor: '#000',

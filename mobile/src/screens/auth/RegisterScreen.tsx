@@ -11,6 +11,7 @@ import { WvInput } from '../../components/ui/WvInput';
 import { WvButton } from '../../components/ui/WvButton';
 import { WvBackButton } from '../../components/ui/WvBackButton';
 import { WvProgressBar } from '../../components/ui/WvProgressBar';
+import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
@@ -51,142 +52,141 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
       : name.length > 0;
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background },
-      ]}
-    >
-      <View style={styles.header}>
-        <WvBackButton
-          onPress={() =>
-            step === 1
-              ? navigation.navigate('Welcome')
-              : setStep(1)
-          }
-        />
-        <Text style={[styles.step, { color: theme.colors.textSecondary }]}>
-          Step {step} of 2
-        </Text>
-      </View>
-
-      <ScrollView
-        contentContainerStyle={styles.scroll}
-        keyboardShouldPersistTaps="handled"
+    <SafeScreen>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
       >
-        <View style={styles.intro}>
-          <Text
-            style={[
-              styles.title,
-              { color: theme.colors.textPrimary },
-            ]}
-          >
-            {step === 1 ? 'Create account' : 'Your name'}
-          </Text>
-          <Text
-            style={[
-              styles.subtitle,
-              { color: theme.colors.textSecondary },
-            ]}
-          >
-            {step === 1 ? 'Set up your credentials' : 'How should we address you?'}
+        <View style={styles.header}>
+          <WvBackButton
+            onPress={() =>
+              step === 1
+                ? navigation.navigate('Welcome')
+                : setStep(1)
+            }
+          />
+          <Text style={[styles.step, { color: theme.colors.textSecondary }]}>
+            Step {step} of 2
           </Text>
         </View>
 
-        <WvProgressBar
-          progress={step === 1 ? 0.5 : 1}
-          color={theme.colors.primary}
-          bgColor={theme.colors.input}
-          height={4}
-          style={styles.progress}
-        />
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.intro}>
+            <Text
+              style={[
+                styles.title,
+                { color: theme.colors.textPrimary },
+              ]}
+            >
+              {step === 1 ? 'Create account' : 'Your name'}
+            </Text>
+            <Text
+              style={[
+                styles.subtitle,
+                { color: theme.colors.textSecondary },
+              ]}
+            >
+              {step === 1 ? 'Set up your credentials' : 'How should we address you?'}
+            </Text>
+          </View>
 
-        {step === 1 ? (
-          <View style={styles.form}>
-            <WvInput
-              label="Email"
-              value={email}
-              onChangeText={setEmail}
-              placeholder="you@example.com"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            <WvInput
-              label="Password"
-              value={password}
-              onChangeText={setPassword}
-              placeholder="Min. 8 characters"
-              secureTextEntry
-            />
-            {password.length > 0 && (
-              <View style={styles.strength}>
-                <View style={styles.strengthBars}>
-                  {[1, 2, 3].map((i) => (
-                    <View
-                      key={i}
-                      style={[
-                        styles.strengthBar,
-                        {
-                          backgroundColor:
-                            i <= passwordStrength
-                              ? strengthColors[passwordStrength - 1]
-                              : theme.colors.border,
-                        },
-                      ]}
-                    />
-                  ))}
+          <WvProgressBar
+            progress={step === 1 ? 0.5 : 1}
+            color={theme.colors.primary}
+            bgColor={theme.colors.input}
+            height={4}
+            style={styles.progress}
+          />
+
+          {step === 1 ? (
+            <View style={styles.form}>
+              <WvInput
+                label="Email"
+                value={email}
+                onChangeText={setEmail}
+                placeholder="you@example.com"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+              <WvInput
+                label="Password"
+                value={password}
+                onChangeText={setPassword}
+                placeholder="Min. 8 characters"
+                secureTextEntry
+              />
+              {password.length > 0 && (
+                <View style={styles.strength}>
+                  <View style={styles.strengthBars}>
+                    {[1, 2, 3].map((i) => (
+                      <View
+                        key={i}
+                        style={[
+                          styles.strengthBar,
+                          {
+                            backgroundColor:
+                              i <= passwordStrength
+                                ? strengthColors[passwordStrength - 1]
+                                : theme.colors.border,
+                          },
+                        ]}
+                      />
+                    ))}
+                  </View>
+                  <Text
+                    style={[
+                      styles.strengthLabel,
+                      { color: theme.colors.textSecondary },
+                    ]}
+                  >
+                    {strengthLabels[passwordStrength - 1] ?? ''}
+                  </Text>
                 </View>
-                <Text
-                  style={[
-                    styles.strengthLabel,
-                    { color: theme.colors.textSecondary },
-                  ]}
-                >
-                  {strengthLabels[passwordStrength - 1] ?? ''}
-                </Text>
-              </View>
-            )}
-            <WvInput
-              label="Confirm password"
-              value={confirm}
-              onChangeText={setConfirm}
-              placeholder="Repeat password"
-              secureTextEntry
-              error={
-                confirm && confirm !== password
-                  ? 'Passwords do not match'
-                  : undefined
-              }
-            />
-          </View>
-        ) : (
-          <View style={styles.form}>
-            <WvInput
-              label="Full name"
-              value={name}
-              onChangeText={setName}
-              placeholder="Your name"
-            />
-          </View>
-        )}
+              )}
+              <WvInput
+                label="Confirm password"
+                value={confirm}
+                onChangeText={setConfirm}
+                placeholder="Repeat password"
+                secureTextEntry
+                error={
+                  confirm && confirm !== password
+                    ? 'Passwords do not match'
+                    : undefined
+                }
+              />
+            </View>
+          ) : (
+            <View style={styles.form}>
+              <WvInput
+                label="Full name"
+                value={name}
+                onChangeText={setName}
+                placeholder="Your name"
+              />
+            </View>
+          )}
 
-        <View style={styles.actions}>
-          <WvButton
-            title={step === 1 ? 'Continue' : 'Create account'}
-            onPress={handleContinue}
-            loading={loading}
-            disabled={!stepValid}
-          />
-          <WvButton
-            title="Already have an account? Sign in"
-            variant="secondary"
-            onPress={() => navigation.navigate('Login')}
-          />
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+          <View style={styles.actions}>
+            <WvButton
+              title={step === 1 ? 'Continue' : 'Create account'}
+              onPress={handleContinue}
+              loading={loading}
+              disabled={!stepValid}
+            />
+            <WvButton
+              title="Already have an account? Sign in"
+              variant="secondary"
+              onPress={() => navigation.navigate('Login')}
+            />
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeScreen>
   );
 }
 
@@ -199,7 +199,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 8,
     paddingBottom: 8,
   },
   step: {

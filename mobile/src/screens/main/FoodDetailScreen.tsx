@@ -11,6 +11,7 @@ import { ArrowLeft, Check, Plus, Minus } from 'lucide-react-native';
 import { WvButton } from '../../components/ui/WvButton';
 import { WvCard } from '../../components/ui/WvCard';
 import { WvIconButton } from '../../components/ui/WvIconButton';
+import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
 import { foodApi } from '../../api/foodApi';
 import { logEntryApi } from '../../api/logEntryApi';
@@ -85,12 +86,7 @@ export function FoodDetailScreen({
   };
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background },
-      ]}
-    >
+    <SafeScreen>
       <View style={styles.header}>
         <WvIconButton
           icon={<ArrowLeft size={20} color={theme.colors.textPrimary} />}
@@ -297,20 +293,16 @@ export function FoodDetailScreen({
           icon={<Check size={20} color="#000000" />}
         />
       </View>
-    </View>
+    </SafeScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     paddingHorizontal: 16,
-    paddingTop: 16,
     paddingBottom: 12,
   },
   headerTitle: {

@@ -14,6 +14,7 @@ import { WvMacroChip } from '../../components/ui/WvMacroChip';
 import { WvCard } from '../../components/ui/WvCard';
 import { WvSectionHeader } from '../../components/ui/WvSectionHeader';
 import { WvProgressBar } from '../../components/ui/WvProgressBar';
+import { SafeScreen, useTabBarPadding } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
 import { logEntryApi } from '../../api/logEntryApi';
 import { getErrorMessage } from '../../utils/errorMessage';
@@ -67,6 +68,7 @@ function getInitials(name = 'User'): string {
 export function HomeScreen({ navigation }: HomeScreenProps) {
   const theme = useTheme();
   const { width } = useWindowDimensions();
+  const tabBarPadding = useTabBarPadding();
   const [dashboard, setDashboard] = useState<DailyDashboard | null>(null);
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(false);
@@ -142,14 +144,12 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
   const fatC = 2 * Math.PI * fatR;
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background },
-      ]}
-    >
+    <SafeScreen hasTabBar>
       <ScrollView
-        contentContainerStyle={styles.scroll}
+        contentContainerStyle={[
+          styles.scroll,
+          { paddingBottom: tabBarPadding },
+        ]}
         refreshControl={
           <RefreshControl refreshing={loading} onRefresh={loadData} />
         }
@@ -518,14 +518,11 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
           </WvCard>
         </TouchableOpacity>
       </ScrollView>
-    </View>
+    </SafeScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   scroll: {
     paddingHorizontal: 20,
     paddingTop: 16,

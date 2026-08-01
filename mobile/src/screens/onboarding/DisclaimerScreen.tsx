@@ -10,6 +10,7 @@ import { WvButton } from '../../components/ui/WvButton';
 import { WvCheckbox } from '../../components/ui/WvCheckbox';
 import { WvProgressBar } from '../../components/ui/WvProgressBar';
 import { WvCard } from '../../components/ui/WvCard';
+import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
 import { useOnboarding } from '../../contexts/OnboardingContext';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -39,12 +40,7 @@ export function DisclaimerScreen({ navigation }: DisclaimerScreenProps) {
   };
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background },
-      ]}
-    >
+    <SafeScreen>
       <View style={styles.header}>
         <WvBackButton onPress={() => navigation.navigate('PersonalProfile')} />
         <Text style={[styles.step, { color: theme.colors.textSecondary }]}>
@@ -147,20 +143,16 @@ export function DisclaimerScreen({ navigation }: DisclaimerScreenProps) {
           disabled={!form.healthDisclaimerAcknowledged || loading}
         />
       </View>
-    </View>
+    </SafeScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 8,
     paddingBottom: 8,
   },
   step: {

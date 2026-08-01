@@ -10,6 +10,7 @@ import {
 import { ChevronLeft, ChevronRight, Plus, Edit2 } from 'lucide-react-native';
 import { WvCard } from '../../components/ui/WvCard';
 import { WvProgressBar } from '../../components/ui/WvProgressBar';
+import { SafeScreen, useTabBarPadding } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
 import { logEntryApi } from '../../api/logEntryApi';
 import { getErrorMessage } from '../../utils/errorMessage';
@@ -54,6 +55,7 @@ function formatDateKey(date: Date): string {
 
 export function DiaryScreen({ navigation }: DiaryScreenProps) {
   const theme = useTheme();
+  const tabBarPadding = useTabBarPadding();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [dashboard, setDashboard] = useState<DailyDashboard | null>(null);
@@ -99,12 +101,7 @@ export function DiaryScreen({ navigation }: DiaryScreenProps) {
   const totals = dashboard?.totals ?? { calories: 0, protein: 0, carbs: 0, fat: 0 };
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background },
-      ]}
-    >
+    <SafeScreen hasTabBar>
       <View
         style={[
           styles.dateNav,
@@ -169,7 +166,10 @@ export function DiaryScreen({ navigation }: DiaryScreenProps) {
       </View>
 
       <ScrollView
-        contentContainerStyle={styles.scroll}
+        contentContainerStyle={[
+          styles.scroll,
+          { paddingBottom: tabBarPadding },
+        ]}
         refreshControl={
           <RefreshControl refreshing={loading} onRefresh={loadData} />
         }
@@ -333,14 +333,11 @@ export function DiaryScreen({ navigation }: DiaryScreenProps) {
           </Text>
         )}
       </ScrollView>
-    </View>
+    </SafeScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   dateNav: {
     flexDirection: 'row',
     alignItems: 'center',

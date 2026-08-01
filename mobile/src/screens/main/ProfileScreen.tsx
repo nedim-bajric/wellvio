@@ -16,6 +16,7 @@ import {
   LogOut,
 } from 'lucide-react-native';
 import { WvCard } from '../../components/ui/WvCard';
+import { SafeScreen, useTabBarPadding } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
 import type { CompositeNavigationProp } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -49,6 +50,7 @@ interface MenuItem {
 
 export function ProfileScreen({ navigation }: ProfileScreenProps) {
   const theme = useTheme();
+  const tabBarPadding = useTabBarPadding();
 
   const menuItems: MenuItem[] = [
     {
@@ -87,19 +89,19 @@ export function ProfileScreen({ navigation }: ProfileScreenProps) {
   ];
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background },
-      ]}
-    >
+    <SafeScreen hasTabBar>
       <View style={styles.topBar}>
         <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
           Profile
         </Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.scroll,
+          { paddingBottom: tabBarPadding },
+        ]}
+      >
         <WvCard style={styles.profileCard}>
           <View
             style={[
@@ -215,17 +217,13 @@ export function ProfileScreen({ navigation }: ProfileScreenProps) {
           ))}
         </View>
       </ScrollView>
-    </View>
+    </SafeScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   topBar: {
     paddingHorizontal: 20,
-    paddingTop: 16,
     paddingBottom: 8,
   },
   title: {

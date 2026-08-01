@@ -19,6 +19,7 @@ import { WvIconButton } from '../../components/ui/WvIconButton';
 import { WvCard } from '../../components/ui/WvCard';
 import { WvToggle } from '../../components/ui/WvToggle';
 import { WvPill } from '../../components/ui/WvPill';
+import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
@@ -63,12 +64,7 @@ export function AppSettingsScreen({ navigation }: AppSettingsScreenProps) {
   ];
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background },
-      ]}
-    >
+    <SafeScreen>
       <View style={styles.header}>
         <WvIconButton
           icon={<ArrowLeft size={20} color={theme.colors.textPrimary} />}
@@ -166,20 +162,16 @@ export function AppSettingsScreen({ navigation }: AppSettingsScreenProps) {
           </WvCard>
         </TouchableOpacity>
       </ScrollView>
-    </View>
+    </SafeScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     paddingHorizontal: 16,
-    paddingTop: 16,
     paddingBottom: 12,
   },
   title: {
