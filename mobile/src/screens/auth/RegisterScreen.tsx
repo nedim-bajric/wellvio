@@ -34,7 +34,13 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
   const [authError, setAuthError] = useState<string | null>(null);
 
   const passwordStrength =
-    password.length === 0 ? 0 : password.length < 6 ? 1 : password.length < 10 ? 2 : 3;
+    password.length === 0
+      ? 0
+      : password.length < MIN_PASSWORD_LENGTH
+        ? 1
+        : password.length < 10
+          ? 2
+          : 3;
   const strengthColors = [theme.colors.red, theme.colors.orange, theme.colors.primary];
   const strengthLabels = ['Weak', 'Fair', 'Strong'];
 
