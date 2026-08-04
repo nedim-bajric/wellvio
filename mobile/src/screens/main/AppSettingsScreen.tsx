@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import {
   ArrowLeft,
@@ -14,13 +15,16 @@ import {
   Vibrate,
   Trash2,
   ChevronRight,
+  Lock,
 } from 'lucide-react-native';
 import { WvIconButton } from '../../components/ui/WvIconButton';
 import { WvCard } from '../../components/ui/WvCard';
 import { WvToggle } from '../../components/ui/WvToggle';
 import { WvPill } from '../../components/ui/WvPill';
+import { WvSectionHeader } from '../../components/ui/WvSectionHeader';
 import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
+import { useAuth } from '../../contexts/AuthContext';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
 
@@ -37,6 +41,7 @@ interface ToggleItem {
 
 export function AppSettingsScreen({ navigation }: AppSettingsScreenProps) {
   const theme = useTheme();
+  const { signOut } = useAuth();
   const [darkMode, setDarkMode] = useState(theme.mode === 'dark');
   const [sound, setSound] = useState(true);
   const [haptics, setHaptics] = useState(true);
@@ -143,7 +148,50 @@ export function AppSettingsScreen({ navigation }: AppSettingsScreenProps) {
           </View>
         </WvCard>
 
-        <TouchableOpacity activeOpacity={0.8}>
+        <WvSectionHeader title="Account" />
+
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate('ChangePassword')}
+        >
+          <WvCard style={styles.navCard}>
+            <View style={styles.rowLeft}>
+              <View
+                style={[
+                  styles.iconBox,
+                  { backgroundColor: theme.colors.input },
+                ]}
+              >
+                <Lock size={20} color={theme.colors.textPrimary} />
+              </View>
+              <Text style={[styles.label, { color: theme.colors.textPrimary }]}>
+                Change password
+              </Text>
+            </View>
+            <ChevronRight size={18} color={theme.colors.textTertiary} />
+          </WvCard>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => {
+            Alert.alert(
+              'Delete account',
+              'This will sign you out and clear local data on this device. Full account deletion must be done from the Supabase dashboard until a backend deletion endpoint is built. Are you sure?',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Delete',
+                  style: 'destructive',
+                  onPress: async () => {
+                    await signOut();
+                    navigation.navigate('Welcome');
+                  },
+                },
+              ],
+            );
+          }}
+        >
           <WvCard style={styles.dangerCard}>
             <View style={styles.rowLeft}>
               <View
@@ -212,6 +260,12 @@ const styles = StyleSheet.create({
   unitSelector: {
     flexDirection: 'row',
     gap: 8,
+  },
+  navCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 14,
   },
   dangerCard: {
     flexDirection: 'row',

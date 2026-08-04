@@ -1,7 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View, Animated, StyleSheet } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { useTheme } from '../../theme/index';
+import { useAuth } from '../../contexts/AuthContext';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
 
@@ -9,9 +10,13 @@ interface SplashScreenProps {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Splash'>;
 }
 
+const SPLASH_MIN_DURATION_MS = 1500;
+
 export function SplashScreen({ navigation }: SplashScreenProps) {
   const theme = useTheme();
+  const { user, loading: authLoading } = useAuth();
   const pulse = useRef(new Animated.Value(1)).current;
+  const [minTimeElapsed, setMinTimeElapsed] = useState(false);
 
   useEffect(() => {
     const pulseAnimation = Animated.loop(
@@ -30,13 +35,21 @@ export function SplashScreen({ navigation }: SplashScreenProps) {
     );
     pulseAnimation.start();
 
-    const timer = setTimeout(() => {
-      pulseAnimation.stop();
-      navigation.replace('Welcome');
-    }, 2500);
+    const minTimer = setTimeout(() => {
+      setMinTimeElapsed(true);
+    }, SPLASH_MIN_DURATION_MS);
 
-    return () => clearTimeout(timer);
-  }, [navigation, pulse]);
+    return () => {
+      clearTimeout(minTimer);
+      pulseAnimation.stop();
+    };
+  }, [pulse]);
+
+  useEffect(() => {
+    if (!authLoading && minTimeElapsed) {
+      navigation.replace(user ? 'Main' : 'Welcome');
+    }
+  }, [authLoading, minTimeElapsed, navigation, user]);
 
   const size = 80;
   const strokeWidth = 8;

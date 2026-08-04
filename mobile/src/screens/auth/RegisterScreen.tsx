@@ -13,6 +13,7 @@ import { WvBackButton } from '../../components/ui/WvBackButton';
 import { WvProgressBar } from '../../components/ui/WvProgressBar';
 import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
+import { useAuth } from '../../contexts/AuthContext';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
 
@@ -20,35 +21,48 @@ interface RegisterScreenProps {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Register'>;
 }
 
+const MIN_PASSWORD_LENGTH = 6;
+
 export function RegisterScreen({ navigation }: RegisterScreenProps) {
   const theme = useTheme();
+  const { signUp } = useAuth();
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const passwordStrength =
     password.length === 0 ? 0 : password.length < 6 ? 1 : password.length < 10 ? 2 : 3;
   const strengthColors = [theme.colors.red, theme.colors.orange, theme.colors.primary];
   const strengthLabels = ['Weak', 'Fair', 'Strong'];
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (step === 1) {
+      setAuthError(null);
       setStep(2);
       return;
     }
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      navigation.navigate('Onboarding');
-    }, 1000);
+    setAuthError(null);
+    const { error } = await signUp({
+      email,
+      password,
+      displayName: name,
+    });
+    setLoading(false);
+    if (error) {
+      setAuthError(error.message);
+      return;
+    }
+    navigation.navigate('Onboarding');
   };
 
   const stepValid =
     step === 1
-      ? email.length > 0 && password.length >= 6 && password === confirm
+      ? email.length > 0 && password.length >= MIN_PASSWORD_LENGTH && password === confirm
       : name.length > 0;
 
   return (
@@ -116,7 +130,7 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
                 label="Password"
                 value={password}
                 onChangeText={setPassword}
-                placeholder="Min. 8 characters"
+                placeholder={`Min. ${MIN_PASSWORD_LENGTH} characters`}
                 secureTextEntry
               />
               {password.length > 0 && (
@@ -169,6 +183,12 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
                 placeholder="Your name"
               />
             </View>
+          )}
+
+          {authError && (
+            <Text style={[styles.authError, { color: theme.colors.error }]}>
+              {authError}
+            </Text>
           )}
 
           <View style={styles.actions}>
@@ -246,5 +266,10 @@ const styles = StyleSheet.create({
   actions: {
     gap: 12,
     marginTop: 'auto',
+  },
+  authError: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 16,
   },
 });

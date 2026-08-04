@@ -12,6 +12,7 @@ import { WvButton } from '../../components/ui/WvButton';
 import { WvBackButton } from '../../components/ui/WvBackButton';
 import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
+import { useAuth } from '../../contexts/AuthContext';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
 
@@ -21,12 +22,15 @@ interface LoginScreenProps {
 
 export function LoginScreen({ navigation }: LoginScreenProps) {
   const theme = useTheme();
+  const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [authError, setAuthError] = useState<string | null>(null);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
+    setAuthError(null);
     const nextErrors: { email?: string; password?: string } = {};
     if (!email) {
       nextErrors.email = 'Email is required.';
@@ -39,10 +43,13 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
       return;
     }
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      navigation.navigate('Main');
-    }, 1200);
+    const { error } = await signIn({ email, password });
+    setLoading(false);
+    if (error) {
+      setAuthError(error.message);
+      return;
+    }
+    navigation.navigate('Main');
   };
 
   return (
@@ -109,6 +116,12 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
             />
           </View>
 
+          {authError && (
+            <Text style={[styles.authError, { color: theme.colors.error }]}>
+              {authError}
+            </Text>
+          )}
+
           <View style={styles.actions}>
             <WvButton
               title="Sign in"
@@ -164,5 +177,10 @@ const styles = StyleSheet.create({
   actions: {
     gap: 12,
     marginTop: 'auto',
+  },
+  authError: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 16,
   },
 });

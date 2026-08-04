@@ -6,6 +6,7 @@ export type AuthStackParamList = {
   Login: undefined;
   Register: undefined;
   ForgotPassword: undefined;
+  ResetPassword: undefined;
 };
 
 export type OnboardingStackParamList = {
@@ -65,6 +66,7 @@ export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
   ForgotPassword: undefined;
+  ResetPassword: undefined;
   Onboarding: undefined;
   Main: undefined;
   AddFood: { mealSlot?: MealSlot } | undefined;
@@ -78,5 +80,6 @@ export type RootStackParamList = {
   EditProfile: undefined;
   GoalsTargets: undefined;
   AppSettings: undefined;
+  ChangePassword: undefined;
   PlanSettings: undefined;
 };

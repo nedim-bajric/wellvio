@@ -13,6 +13,7 @@ import { WvButton } from '../../components/ui/WvButton';
 import { WvBackButton } from '../../components/ui/WvBackButton';
 import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
+import { supabase } from '../../lib/supabase';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
 
@@ -20,18 +21,28 @@ interface ForgotPasswordScreenProps {
   navigation: NativeStackNavigationProp<RootStackParamList, 'ForgotPassword'>;
 }
 
+const RESET_PASSWORD_REDIRECT_URL = 'wellvio://reset-password';
+
 export function ForgotPasswordScreen({ navigation }: ForgotPasswordScreenProps) {
   const theme = useTheme();
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSend = () => {
+  const handleSend = async () => {
+    setError(null);
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSent(true);
-    }, 1000);
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+      email,
+      { redirectTo: RESET_PASSWORD_REDIRECT_URL },
+    );
+    setLoading(false);
+    if (resetError) {
+      setError(resetError.message);
+      return;
+    }
+    setSent(true);
   };
 
   return (
@@ -77,6 +88,7 @@ export function ForgotPasswordScreen({ navigation }: ForgotPasswordScreenProps) 
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
+                error={error ?? undefined}
               />
 
               <View style={styles.actions}>

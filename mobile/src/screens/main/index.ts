@@ -14,4 +14,5 @@ export { BodyMeasurementsScreen } from './BodyMeasurementsScreen';
 export { EditProfileScreen } from './EditProfileScreen';
 export { GoalsTargetsScreen } from './GoalsTargetsScreen';
 export { AppSettingsScreen } from './AppSettingsScreen';
+export { ChangePasswordScreen } from './ChangePasswordScreen';
 export { PlanSettingsScreen } from './PlanSettingsScreen';
