@@ -13,6 +13,7 @@ import { WvBackButton } from '../../components/ui/WvBackButton';
 import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
 import { supabase } from '../../lib/supabase';
+import { MIN_PASSWORD_LENGTH } from '../../constants/auth';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
 
@@ -22,6 +23,7 @@ interface ChangePasswordScreenProps {
 
 export function ChangePasswordScreen({ navigation }: ChangePasswordScreenProps) {
   const theme = useTheme();
+  const [currentPassword, setCurrentPassword] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [loading, setLoading] = useState(false);
@@ -30,8 +32,12 @@ export function ChangePasswordScreen({ navigation }: ChangePasswordScreenProps) 
 
   const handleSubmit = async () => {
     setError(null);
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
+    if (currentPassword.length < MIN_PASSWORD_LENGTH) {
+      setError('Please enter your current password.');
+      return;
+    }
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
       return;
     }
     if (password !== confirm) {
@@ -91,10 +97,17 @@ export function ChangePasswordScreen({ navigation }: ChangePasswordScreenProps) 
             <>
               <View style={styles.form}>
                 <WvInput
+                  label="Current password"
+                  value={currentPassword}
+                  onChangeText={setCurrentPassword}
+                  placeholder="Your current password"
+                  secureTextEntry
+                />
+                <WvInput
                   label="New password"
                   value={password}
                   onChangeText={setPassword}
-                  placeholder="Min. 6 characters"
+                  placeholder={`Min. ${MIN_PASSWORD_LENGTH} characters`}
                   secureTextEntry
                 />
                 <WvInput
@@ -121,7 +134,7 @@ export function ChangePasswordScreen({ navigation }: ChangePasswordScreenProps) 
                   title="Update password"
                   onPress={handleSubmit}
                   loading={loading}
-                  disabled={!password || !confirm}
+                  disabled={!currentPassword || !password || !confirm}
                 />
               </View>
             </>

@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 import { supabase } from '../lib/supabase';
-import type { User, AuthError, AuthResponse } from '@supabase/supabase-js';
+import type { User, AuthError } from '@supabase/supabase-js';
 
 export interface AuthCredentials {
   email: string;
@@ -22,7 +22,7 @@ interface AuthContextValue {
   user: User | null;
   loading: boolean;
   signIn: (credentials: AuthCredentials) => Promise<{ error: AuthError | null }>;
-  signUp: (data: SignUpData) => Promise<AuthResponse>;
+  signUp: (data: SignUpData) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<{ error: AuthError | null }>;
 }
 
@@ -71,8 +71,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   }, []);
 
-  const signUp = useCallback(async (data: SignUpData): Promise<AuthResponse> => {
-    return supabase.auth.signUp({
+  const signUp = useCallback(async (
+    data: SignUpData,
+  ): Promise<{ error: AuthError | null }> => {
+    const { error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
       options: {
@@ -81,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
       },
     });
+    return { error };
   }, []);
 
   const signOut = useCallback(async (): Promise<{ error: AuthError | null }> => {

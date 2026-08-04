@@ -7,7 +7,7 @@ const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
 const SESSION_KEY = 'supabase-auth-session';
 
-export const secureStoreAdapter = {
+const secureStoreAdapter = {
   async getItem(key: string): Promise<string | null> {
     try {
       return await SecureStore.getItemAsync(key);
@@ -44,4 +44,4 @@ export const supabase: SupabaseClient = createClient(
   },
 );
 
-export { SESSION_KEY };
+

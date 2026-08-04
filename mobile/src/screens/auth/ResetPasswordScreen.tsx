@@ -14,6 +14,7 @@ import { WvBackButton } from '../../components/ui/WvBackButton';
 import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
 import { supabase } from '../../lib/supabase';
+import { MIN_PASSWORD_LENGTH } from '../../constants/auth';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
 
@@ -88,8 +89,8 @@ export function ResetPasswordScreen({ navigation }: ResetPasswordScreenProps) {
 
   const handleSubmit = async () => {
     setError(null);
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
       return;
     }
     if (password !== confirm) {
@@ -159,7 +160,7 @@ export function ResetPasswordScreen({ navigation }: ResetPasswordScreenProps) {
                   label="New password"
                   value={password}
                   onChangeText={setPassword}
-                  placeholder="Min. 6 characters"
+                  placeholder={`Min. ${MIN_PASSWORD_LENGTH} characters`}
                   secureTextEntry
                 />
                 <WvInput

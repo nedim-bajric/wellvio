@@ -14,14 +14,13 @@ import { WvProgressBar } from '../../components/ui/WvProgressBar';
 import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
 import { useAuth } from '../../contexts/AuthContext';
+import { MIN_PASSWORD_LENGTH } from '../../constants/auth';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
 
 interface RegisterScreenProps {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Register'>;
 }
-
-const MIN_PASSWORD_LENGTH = 6;
 
 export function RegisterScreen({ navigation }: RegisterScreenProps) {
   const theme = useTheme();
