@@ -60,7 +60,7 @@
 ## v0 scope boundaries
 
 - Modules: **Diet only**. Activity and Health are deferred.
-- Auth: basic email + password with JWT. No OAuth, no social login, no email verification, no roles.
+- Auth: Supabase Auth with email + password. No OAuth, no social login, no email verification, no roles. Mobile talks directly to Supabase Auth; the NestJS backend does not participate in auth during v0.
 - User model: multi-user capable, not "only for me."
 - Mobile client: **React Native with Expo** for iOS and Android.
 - Nutrients tracked: calories, protein, carbs, fat only.
