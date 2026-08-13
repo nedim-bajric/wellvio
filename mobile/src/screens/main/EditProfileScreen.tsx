@@ -81,10 +81,10 @@ export function EditProfileScreen({ navigation }: EditProfileScreenProps) {
           <WvInput
             label="Email"
             value={email}
-            onChangeText={setEmail}
             placeholder="Enter your email"
             keyboardType="email-address"
             autoCapitalize="none"
+            editable={false}
           />
           <WvInput
             label="Date of birth"

@@ -8,7 +8,6 @@ import {
 } from 'react-native';
 import {
   ChevronRight,
-  User,
   Target,
   Apple,
   Settings,
@@ -94,11 +93,6 @@ export function ProfileScreen({ navigation }: ProfileScreenProps) {
 
   const menuItems: MenuItem[] = [
     {
-      icon: <User size={20} color={theme.colors.primary} />,
-      label: 'Edit profile',
-      onPress: () => navigation.navigate('EditProfile'),
-    },
-    {
       icon: <Target size={20} color={theme.colors.orange} />,
       label: 'Goals & targets',
       onPress: () => navigation.navigate('GoalsTargets'),
@@ -154,34 +148,39 @@ export function ProfileScreen({ navigation }: ProfileScreenProps) {
           { paddingBottom: tabBarPadding },
         ]}
       >
-        <WvCard style={styles.profileCard}>
-          <View
-            style={[
-              styles.avatar,
-              { backgroundColor: theme.colors.primary },
-            ]}
-          >
-            <Text style={styles.avatarText}>{getInitials(displayName)}</Text>
-          </View>
-          <View style={styles.profileInfo}>
-            <Text
-              style={[styles.name, { color: theme.colors.textPrimary }]}
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate('EditProfile')}
+        >
+          <WvCard style={styles.profileCard}>
+            <View
+              style={[
+                styles.avatar,
+                { backgroundColor: theme.colors.primary },
+              ]}
             >
-              {displayName || 'User'}
-            </Text>
-            <Text
-              style={[styles.email, { color: theme.colors.textTertiary }]}
-            >
-              {email || '--'}
-            </Text>
-            <Text
-              style={[styles.memberSince, { color: theme.colors.textSecondary }]}
-            >
-              {formatMemberSince(user?.created_at)}
-            </Text>
-          </View>
-          <ChevronRight size={18} color={theme.colors.textTertiary} />
-        </WvCard>
+              <Text style={styles.avatarText}>{getInitials(displayName)}</Text>
+            </View>
+            <View style={styles.profileInfo}>
+              <Text
+                style={[styles.name, { color: theme.colors.textPrimary }]}
+              >
+                {displayName || 'User'}
+              </Text>
+              <Text
+                style={[styles.email, { color: theme.colors.textTertiary }]}
+              >
+                {email || '--'}
+              </Text>
+              <Text
+                style={[styles.memberSince, { color: theme.colors.textSecondary }]}
+              >
+                {formatMemberSince(user?.created_at)}
+              </Text>
+            </View>
+            <ChevronRight size={18} color={theme.colors.textTertiary} />
+          </WvCard>
+        </TouchableOpacity>
 
         <WvCard style={styles.statsCard}>
           {stats.map((stat) => (
