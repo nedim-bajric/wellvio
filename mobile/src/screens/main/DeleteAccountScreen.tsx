@@ -70,24 +70,19 @@ export function DeleteAccountScreen({ navigation }: DeleteAccountScreenProps) {
 
     if (rpcError) {
       setLoading(false);
-      const message = rpcError.message;
-      if (message.toLowerCase().includes('could not find the function')) {
-        setError(
-          'Account deletion is not configured yet. Please apply the latest Supabase migration and try again.',
-        );
-      } else {
-        setError(message);
-      }
+      setError(rpcError.message);
       return;
     }
 
-    await signOut();
+    const { error: signOutError } = await signOut();
     setLoading(false);
 
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Welcome' }],
-    });
+    if (signOutError) {
+      setError(signOutError.message);
+      return;
+    }
+
+    navigation.getParent()?.navigate('Welcome');
   };
 
   const confirmDelete = () => {
