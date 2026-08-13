@@ -70,7 +70,14 @@ export function DeleteAccountScreen({ navigation }: DeleteAccountScreenProps) {
 
     if (rpcError) {
       setLoading(false);
-      setError(rpcError.message);
+      const message = rpcError.message;
+      if (message.toLowerCase().includes('could not find the function')) {
+        setError(
+          'Account deletion is not configured yet. Please apply the latest Supabase migration and try again.',
+        );
+      } else {
+        setError(message);
+      }
       return;
     }
 
