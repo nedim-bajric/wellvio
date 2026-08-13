@@ -6,7 +6,6 @@ import {
   type ReactNode,
 } from 'react';
 import { supabase } from '../lib/supabase';
-import { useAuth } from './AuthContext';
 import type { Gender } from '../types/onboarding';
 
 export interface OnboardingForm {
@@ -44,7 +43,6 @@ interface OnboardingContextValue {
 const OnboardingContext = createContext<OnboardingContextValue | null>(null);
 
 export function OnboardingProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
   const [form, setForm] = useState<OnboardingForm>(INITIAL_FORM);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -90,7 +88,12 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     setError(null);
     try {
-      if (!user) {
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
+      if (sessionError || !session) {
         setError('User not authenticated');
         return false;
       }
@@ -105,7 +108,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
         .from('profiles')
         .upsert(
           {
-            user_id: user.id,
+            user_id: session.user.id,
             ...payload.data,
           },
           { onConflict: 'user_id' },
@@ -124,7 +127,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [form, user]);
+  }, [form]);
 
   return (
     <OnboardingContext.Provider

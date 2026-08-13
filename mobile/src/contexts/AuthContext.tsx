@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp = useCallback(async (
     data: SignUpData,
   ): Promise<{ error: AuthError | null }> => {
-    const { error } = await supabase.auth.signUp({
+    const { data: authData, error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
       options: {
@@ -83,6 +83,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
       },
     });
+
+    if (authData.session) {
+      setUser(authData.session.user);
+    }
+
     return { error };
   }, []);
 
