@@ -21,6 +21,7 @@ import {
   GoalsTargetsScreen,
   AppSettingsScreen,
   ChangePasswordScreen,
+  DeleteAccountScreen,
   PlanSettingsScreen,
 } from '../screens/main/index';
 import { OnboardingNavigator } from './OnboardingNavigator';
@@ -62,6 +63,7 @@ export function RootNavigator() {
         <Stack.Screen name="GoalsTargets" component={GoalsTargetsScreen} />
         <Stack.Screen name="AppSettings" component={AppSettingsScreen} />
         <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+        <Stack.Screen name="DeleteAccount" component={DeleteAccountScreen} />
         <Stack.Screen name="PlanSettings" component={PlanSettingsScreen} />
       </Stack.Navigator>
     </NavigationContainer>

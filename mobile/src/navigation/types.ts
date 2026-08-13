@@ -81,5 +81,6 @@ export type RootStackParamList = {
   GoalsTargets: undefined;
   AppSettings: undefined;
   ChangePassword: undefined;
+  DeleteAccount: undefined;
   PlanSettings: undefined;
 };

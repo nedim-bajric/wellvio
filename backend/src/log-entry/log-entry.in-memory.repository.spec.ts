@@ -173,4 +173,41 @@ describe('InMemoryLogEntryRepository', () => {
       );
     });
   });
+
+  describe('removeAllByUserId', () => {
+    it('deletes all entries for the user', async () => {
+      const today = new Date('2026-07-27T10:00:00Z');
+      await repository.create(userId, {
+        foodId: 'food-1',
+        grams: 100,
+        mealSlot: 'breakfast',
+        loggedAt: today,
+      });
+      await repository.create(userId, {
+        foodId: 'food-2',
+        grams: 200,
+        mealSlot: 'lunch',
+        loggedAt: today,
+      });
+      await repository.create(otherUserId, {
+        foodId: 'food-1',
+        grams: 100,
+        mealSlot: 'breakfast',
+        loggedAt: today,
+      });
+
+      await repository.removeAllByUserId(userId);
+
+      expect(
+        await repository.findAllByUserIdAndDate(userId, today),
+      ).toEqual([]);
+      expect(
+        await repository.findAllByUserIdAndDate(otherUserId, today),
+      ).toHaveLength(1);
+    });
+
+    it('does nothing when the user has no entries', async () => {
+      await expect(repository.removeAllByUserId(userId)).resolves.toBeUndefined();
+    });
+  });
 });

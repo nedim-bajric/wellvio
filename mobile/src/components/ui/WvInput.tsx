@@ -14,7 +14,7 @@ import { useTheme } from '../../theme/index';
 interface WvInputProps {
   label?: string;
   value: string;
-  onChangeText: (text: string) => void;
+  onChangeText?: (text: string) => void;
   placeholder?: string;
   secureTextEntry?: boolean;
   keyboardType?: 'default' | 'email-address' | 'number-pad' | 'decimal-pad' | 'phone-pad';
@@ -28,6 +28,7 @@ interface WvInputProps {
   maxLength?: number;
   multiline?: boolean;
   numberOfLines?: number;
+  editable?: boolean;
 }
 
 export function WvInput({
@@ -47,6 +48,7 @@ export function WvInput({
   maxLength,
   multiline = false,
   numberOfLines,
+  editable = true,
 }: WvInputProps) {
   const theme = useTheme();
   const [showPassword, setShowPassword] = useState(false);
@@ -88,10 +90,11 @@ export function WvInput({
           multiline={multiline}
           numberOfLines={numberOfLines}
           textAlign={textAlign}
+          editable={editable}
           style={[
             styles.input,
             {
-              color: theme.colors.textPrimary,
+              color: editable ? theme.colors.textPrimary : theme.colors.textTertiary,
               fontSize,
             },
             inputStyle,

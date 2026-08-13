@@ -15,4 +15,5 @@ export { EditProfileScreen } from './EditProfileScreen';
 export { GoalsTargetsScreen } from './GoalsTargetsScreen';
 export { AppSettingsScreen } from './AppSettingsScreen';
 export { ChangePasswordScreen } from './ChangePasswordScreen';
+export { DeleteAccountScreen } from './DeleteAccountScreen';
 export { PlanSettingsScreen } from './PlanSettingsScreen';

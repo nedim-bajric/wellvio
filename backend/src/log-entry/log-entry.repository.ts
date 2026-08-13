@@ -20,4 +20,5 @@ export interface LogEntryRepository {
     data: UpdateLogEntryData,
   ): Promise<LogEntry>;
   remove(userId: string, id: string): Promise<void>;
+  removeAllByUserId(userId: string): Promise<void>;
 }

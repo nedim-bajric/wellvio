@@ -102,6 +102,10 @@ export class LogEntryService {
     await this.repository.remove(userId, id);
   }
 
+  async removeAllByUserId(userId: string): Promise<void> {
+    await this.repository.removeAllByUserId(userId);
+  }
+
   async getDailyDashboard(
     userId: string,
     date: Date,

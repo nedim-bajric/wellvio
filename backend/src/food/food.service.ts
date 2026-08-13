@@ -28,4 +28,8 @@ export class FoodService {
   remove(userId: string, id: string): Promise<void> {
     return this.repository.remove(userId, id);
   }
+
+  removeAllByUserId(userId: string): Promise<void> {
+    return this.repository.removeAllByUserId(userId);
+  }
 }

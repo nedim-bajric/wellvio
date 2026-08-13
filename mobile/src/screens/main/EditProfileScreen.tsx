@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import { ArrowLeft, Camera } from 'lucide-react-native';
 import { WvInput } from '../../components/ui/WvInput';
@@ -12,6 +13,9 @@ import { WvButton } from '../../components/ui/WvButton';
 import { WvIconButton } from '../../components/ui/WvIconButton';
 import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
+import { useAuth } from '../../contexts/AuthContext';
+import { useProfile } from '../../hooks/useProfile';
+import { supabase } from '../../lib/supabase';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
 
@@ -28,15 +32,68 @@ function getInitials(name = 'User'): string {
     .toUpperCase();
 }
 
+function formatGender(gender: string | null | undefined): string {
+  if (!gender) return '';
+  return gender.charAt(0).toUpperCase() + gender.slice(1);
+}
+
 export function EditProfileScreen({ navigation }: EditProfileScreenProps) {
   const theme = useTheme();
-  const [name, setName] = useState('Alex Morgan');
-  const [email, setEmail] = useState('alex.morgan@example.com');
-  const [dob, setDob] = useState('1995-03-12');
-  const [height, setHeight] = useState('178');
-  const [weight, setWeight] = useState('70.2');
-  const [gender, setGender] = useState('Male');
-  const [activity, setActivity] = useState('Moderately active');
+  const { user } = useAuth();
+  const { profile, refetch } = useProfile();
+
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [dob, setDob] = useState('');
+  const [height, setHeight] = useState('');
+  const [weight, setWeight] = useState('');
+  const [gender, setGender] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setName((user?.user_metadata?.display_name as string | undefined) ?? '');
+    setEmail(user?.email ?? '');
+    setDob(profile?.date_of_birth ?? '');
+    setHeight(profile?.height_cm?.toString() ?? '');
+    setWeight(profile?.weight_kg?.toString() ?? '');
+    setGender(formatGender(profile?.gender));
+  }, [user, profile]);
+
+  const handleSave = async () => {
+    if (!user) return;
+
+    setSaving(true);
+
+    const { error: authError } = await supabase.auth.updateUser({
+      data: { display_name: name },
+    });
+
+    if (authError) {
+      setSaving(false);
+      Alert.alert('Update failed', authError.message);
+      return;
+    }
+
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({
+        date_of_birth: dob || null,
+        height_cm: height ? parseFloat(height) : null,
+        weight_kg: weight ? parseFloat(weight) : null,
+        gender: gender ? gender.toLowerCase() : null,
+      })
+      .eq('user_id', user.id);
+
+    if (profileError) {
+      setSaving(false);
+      Alert.alert('Update failed', profileError.message);
+      return;
+    }
+
+    await refetch();
+    setSaving(false);
+    navigation.goBack();
+  };
 
   return (
     <SafeScreen>
@@ -81,10 +138,10 @@ export function EditProfileScreen({ navigation }: EditProfileScreenProps) {
           <WvInput
             label="Email"
             value={email}
-            onChangeText={setEmail}
             placeholder="Enter your email"
             keyboardType="email-address"
             autoCapitalize="none"
+            editable={false}
           />
           <WvInput
             label="Date of birth"
@@ -118,19 +175,15 @@ export function EditProfileScreen({ navigation }: EditProfileScreenProps) {
             onChangeText={setGender}
             placeholder="Gender"
           />
-          <WvInput
-            label="Activity level"
-            value={activity}
-            onChangeText={setActivity}
-            placeholder="Activity level"
-          />
         </View>
       </ScrollView>
 
       <View style={styles.footer}>
         <WvButton
           title="Save changes"
-          onPress={() => navigation.goBack()}
+          onPress={handleSave}
+          loading={saving}
+          disabled={saving}
         />
       </View>
     </SafeScreen>

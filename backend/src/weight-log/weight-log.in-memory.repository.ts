@@ -80,4 +80,12 @@ export class InMemoryWeightLogRepository implements WeightLogRepository {
     }
     this.entries.delete(id);
   }
+
+  async removeAllByUserId(userId: string): Promise<void> {
+    for (const [id, entry] of this.entries.entries()) {
+      if (entry.userId === userId) {
+        this.entries.delete(id);
+      }
+    }
+  }
 }

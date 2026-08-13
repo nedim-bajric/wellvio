@@ -25,6 +25,7 @@ import { WvSectionHeader } from '../../components/ui/WvSectionHeader';
 import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
 import { useAuth } from '../../contexts/AuthContext';
+import { useOnboarding } from '../../contexts/OnboardingContext';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
 
@@ -42,6 +43,7 @@ interface ToggleItem {
 export function AppSettingsScreen({ navigation }: AppSettingsScreenProps) {
   const theme = useTheme();
   const { signOut } = useAuth();
+  const { resetForm } = useOnboarding();
   const [darkMode, setDarkMode] = useState(theme.mode === 'dark');
   const [sound, setSound] = useState(true);
   const [haptics, setHaptics] = useState(true);
@@ -185,6 +187,7 @@ export function AppSettingsScreen({ navigation }: AppSettingsScreenProps) {
                   style: 'destructive',
                   onPress: async () => {
                     await signOut();
+                    resetForm();
                     navigation.navigate('Welcome');
                   },
                 },

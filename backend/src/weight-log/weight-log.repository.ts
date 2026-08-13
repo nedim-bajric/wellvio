@@ -21,4 +21,5 @@ export interface WeightLogRepository {
     data: UpdateWeightLogData,
   ): Promise<WeightLog>;
   remove(userId: string, id: string): Promise<void>;
+  removeAllByUserId(userId: string): Promise<void>;
 }

@@ -34,4 +34,12 @@ export class InMemoryPlanRepository implements PlanRepository {
       }
     }
   }
+
+  async removeAllByUserId(userId: string): Promise<void> {
+    for (const [id, plan] of this.plans.entries()) {
+      if (plan.userId === userId) {
+        this.plans.delete(id);
+      }
+    }
+  }
 }

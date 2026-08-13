@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
+import { AccountModule } from './account/account.module.js';
 import { DietModule } from './diet/diet.module.js';
 import { FoodModule } from './food/food.module.js';
 import { LogEntryModule } from './log-entry/log-entry.module.js';
@@ -9,6 +10,7 @@ import { WeightLogModule } from './weight-log/weight-log.module.js';
 
 @Module({
   imports: [
+    AccountModule,
     DietModule,
     FoodModule,
     LogEntryModule,

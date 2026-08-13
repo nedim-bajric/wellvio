@@ -41,4 +41,8 @@ export class InMemoryProfileRepository implements ProfileRepository {
     this.profiles.set(userId, updated);
     return updated;
   }
+
+  async removeByUserId(userId: string): Promise<void> {
+    this.profiles.delete(userId);
+  }
 }
