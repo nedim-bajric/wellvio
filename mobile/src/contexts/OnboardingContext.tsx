@@ -35,6 +35,7 @@ interface ProfileUpsertData {
 interface OnboardingContextValue {
   form: OnboardingForm;
   updateForm: <K extends keyof OnboardingForm>(key: K, value: OnboardingForm[K]) => void;
+  resetForm: () => void;
   loading: boolean;
   error: string | null;
   createProfile: () => Promise<boolean>;
@@ -53,6 +54,12 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     value: OnboardingForm[K],
   ) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+  }, []);
+
+  const resetForm = useCallback(() => {
+    setForm(INITIAL_FORM);
+    setError(null);
+    setLoading(false);
   }, []);
 
   const buildProfilePayload = ():
@@ -124,6 +131,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
       value={{
         form,
         updateForm,
+        resetForm,
         loading,
         error,
         createProfile,

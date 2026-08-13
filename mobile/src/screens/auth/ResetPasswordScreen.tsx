@@ -37,6 +37,21 @@ function parseHashParams(url: string): Record<string, string> {
   return params;
 }
 
+function parseSearchParams(url: string): Record<string, string> {
+  const queryIndex = url.indexOf('?');
+  const query = queryIndex >= 0 ? url.slice(queryIndex + 1) : '';
+  const params: Record<string, string> = {};
+  for (const pair of query.split('&')) {
+    const [key, ...valueParts] = pair.split('=');
+    if (key) {
+      params[decodeURIComponent(key)] = valueParts.length
+        ? decodeURIComponent(valueParts.join('='))
+        : '';
+    }
+  }
+  return params;
+}
+
 export function ResetPasswordScreen({ navigation }: ResetPasswordScreenProps) {
   const theme = useTheme();
   const [password, setPassword] = useState('');
@@ -54,9 +69,26 @@ export function ResetPasswordScreen({ navigation }: ResetPasswordScreenProps) {
         if (active) setSessionLoading(false);
         return;
       }
-      const params = parseHashParams(url);
-      const accessToken = params.access_token;
-      const refreshToken = params.refresh_token;
+
+      // PKCE flow: Supabase sends ?code=...&type=recovery in the redirect URL.
+      const searchParams = parseSearchParams(url);
+      const code = searchParams.code;
+      const type = searchParams.type;
+      if (code && type === 'recovery') {
+        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+        if (active) {
+          if (exchangeError) {
+            setError(exchangeError.message);
+          }
+          setSessionLoading(false);
+        }
+        return;
+      }
+
+      // Legacy implicit flow: tokens are in the URL hash fragment.
+      const hashParams = parseHashParams(url);
+      const accessToken = hashParams.access_token;
+      const refreshToken = hashParams.refresh_token;
       if (!accessToken || !refreshToken) {
         if (active) {
           setError('Invalid or expired password reset link.');
