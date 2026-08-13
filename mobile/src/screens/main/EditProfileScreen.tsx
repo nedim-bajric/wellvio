@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,8 @@ import { WvButton } from '../../components/ui/WvButton';
 import { WvIconButton } from '../../components/ui/WvIconButton';
 import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
+import { useAuth } from '../../contexts/AuthContext';
+import { useProfile } from '../../hooks/useProfile';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
 
@@ -28,15 +30,31 @@ function getInitials(name = 'User'): string {
     .toUpperCase();
 }
 
+function formatGender(gender: string | null | undefined): string {
+  if (!gender) return '';
+  return gender.charAt(0).toUpperCase() + gender.slice(1);
+}
+
 export function EditProfileScreen({ navigation }: EditProfileScreenProps) {
   const theme = useTheme();
-  const [name, setName] = useState('Alex Morgan');
-  const [email, setEmail] = useState('alex.morgan@example.com');
-  const [dob, setDob] = useState('1995-03-12');
-  const [height, setHeight] = useState('178');
-  const [weight, setWeight] = useState('70.2');
-  const [gender, setGender] = useState('Male');
-  const [activity, setActivity] = useState('Moderately active');
+  const { user } = useAuth();
+  const { profile } = useProfile();
+
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [dob, setDob] = useState('');
+  const [height, setHeight] = useState('');
+  const [weight, setWeight] = useState('');
+  const [gender, setGender] = useState('');
+
+  useEffect(() => {
+    setName((user?.user_metadata?.display_name as string | undefined) ?? '');
+    setEmail(user?.email ?? '');
+    setDob(profile?.date_of_birth ?? '');
+    setHeight(profile?.height_cm?.toString() ?? '');
+    setWeight(profile?.weight_kg?.toString() ?? '');
+    setGender(formatGender(profile?.gender));
+  }, [user, profile]);
 
   return (
     <SafeScreen>
@@ -117,12 +135,6 @@ export function EditProfileScreen({ navigation }: EditProfileScreenProps) {
             value={gender}
             onChangeText={setGender}
             placeholder="Gender"
-          />
-          <WvInput
-            label="Activity level"
-            value={activity}
-            onChangeText={setActivity}
-            placeholder="Activity level"
           />
         </View>
       </ScrollView>
