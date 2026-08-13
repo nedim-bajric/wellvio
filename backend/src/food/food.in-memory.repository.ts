@@ -58,4 +58,12 @@ export class InMemoryFoodRepository implements FoodRepository {
     }
     this.foods.delete(id);
   }
+
+  async removeAllByUserId(userId: string): Promise<void> {
+    for (const [id, food] of this.foods.entries()) {
+      if (food.userId === userId) {
+        this.foods.delete(id);
+      }
+    }
+  }
 }

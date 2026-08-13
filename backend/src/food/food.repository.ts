@@ -8,4 +8,5 @@ export interface FoodRepository {
   findOne(userId: string, id: string): Promise<Food | null>;
   update(userId: string, id: string, data: UpdateFoodData): Promise<Food>;
   remove(userId: string, id: string): Promise<void>;
+  removeAllByUserId(userId: string): Promise<void>;
 }

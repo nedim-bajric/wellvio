@@ -12,6 +12,7 @@ import { WvButton } from '../../components/ui/WvButton';
 import { WvBackButton } from '../../components/ui/WvBackButton';
 import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
+import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { MIN_PASSWORD_LENGTH } from '../../constants/auth';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -23,6 +24,7 @@ interface ChangePasswordScreenProps {
 
 export function ChangePasswordScreen({ navigation }: ChangePasswordScreenProps) {
   const theme = useTheme();
+  const { user } = useAuth();
   const [currentPassword, setCurrentPassword] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -44,16 +46,45 @@ export function ChangePasswordScreen({ navigation }: ChangePasswordScreenProps) 
       setError('Passwords do not match.');
       return;
     }
+
+    const email = user?.email;
+    if (!email) {
+      setError('User email is missing.');
+      return;
+    }
+
     setLoading(true);
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password: currentPassword,
+    });
+
+    if (signInError) {
+      setLoading(false);
+      setError('Current password is incorrect.');
+      return;
+    }
+
     const { error: updateError } = await supabase.auth.updateUser({
       password,
     });
+
     setLoading(false);
+
     if (updateError) {
       setError(updateError.message);
       return;
     }
+
+    setCurrentPassword('');
+    setPassword('');
+    setConfirm('');
     setSuccess(true);
+  };
+
+  const handleDone = () => {
+    navigation.goBack();
   };
 
   return (
@@ -90,9 +121,12 @@ export function ChangePasswordScreen({ navigation }: ChangePasswordScreenProps) 
           </View>
 
           {success ? (
-            <Text style={[styles.success, { color: theme.colors.primary }]}>
-              Your password has been updated.
-            </Text>
+            <View style={styles.successContainer}>
+              <Text style={[styles.success, { color: theme.colors.primary }]}>
+                Your password has been updated.
+              </Text>
+              <WvButton title="Done" onPress={handleDone} />
+            </View>
           ) : (
             <>
               <View style={styles.form}>
@@ -184,6 +218,10 @@ const styles = StyleSheet.create({
   success: {
     fontSize: 17,
     textAlign: 'center',
+    marginBottom: 24,
+  },
+  successContainer: {
     marginTop: 24,
+    gap: 16,
   },
 });

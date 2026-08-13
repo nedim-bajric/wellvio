@@ -14,6 +14,8 @@ import {
   Smartphone,
   HelpCircle,
   LogOut,
+  Lock,
+  Trash2,
 } from 'lucide-react-native';
 import { WvCard } from '../../components/ui/WvCard';
 import { SafeScreen, useTabBarPadding } from '../../components/SafeScreen';
@@ -108,6 +110,11 @@ export function ProfileScreen({ navigation }: ProfileScreenProps) {
       onPress: () => navigation.navigate('AppSettings'),
     },
     {
+      icon: <Lock size={20} color={theme.colors.indigo} />,
+      label: 'Change password',
+      onPress: () => navigation.navigate('ChangePassword'),
+    },
+    {
       icon: <Smartphone size={20} color={theme.colors.activityGreen} />,
       label: 'Connected devices',
     },
@@ -115,11 +122,20 @@ export function ProfileScreen({ navigation }: ProfileScreenProps) {
       icon: <HelpCircle size={20} color={theme.colors.textSecondary} />,
       label: 'Help & support',
     },
+  ];
+
+  const dangerItems: MenuItem[] = [
     {
       icon: <LogOut size={20} color={theme.colors.red} />,
       label: 'Log out',
       color: theme.colors.red,
       onPress: confirmLogout,
+    },
+    {
+      icon: <Trash2 size={20} color={theme.colors.red} />,
+      label: 'Delete account',
+      color: theme.colors.red,
+      onPress: () => navigation.navigate('DeleteAccount'),
     },
   ];
 
@@ -240,6 +256,42 @@ export function ProfileScreen({ navigation }: ProfileScreenProps) {
             </TouchableOpacity>
           ))}
         </View>
+
+        <View style={[styles.menuSection, styles.dangerSection]}>
+          {dangerItems.map((item) => (
+            <TouchableOpacity
+              key={item.label}
+              activeOpacity={0.8}
+              onPress={item.onPress}
+              disabled={!item.onPress}
+            >
+              <WvCard style={styles.menuCard}>
+                <View style={styles.menuLeft}>
+                  <View
+                    style={[
+                      styles.menuIcon,
+                      { backgroundColor: theme.colors.errorBackground },
+                    ]}
+                  >
+                    {item.icon}
+                  </View>
+                  <Text
+                    style={[
+                      styles.menuLabel,
+                      { color: item.color ?? theme.colors.textPrimary },
+                    ]}
+                  >
+                    {item.label}
+                  </Text>
+                </View>
+                <ChevronRight
+                  size={18}
+                  color={item.color ?? theme.colors.textTertiary}
+                />
+              </WvCard>
+            </TouchableOpacity>
+          ))}
+        </View>
       </ScrollView>
     </SafeScreen>
   );
@@ -312,6 +364,9 @@ const styles = StyleSheet.create({
   menuSection: {
     marginTop: 8,
     gap: 10,
+  },
+  dangerSection: {
+    marginTop: 16,
   },
   menuCard: {
     flexDirection: 'row',

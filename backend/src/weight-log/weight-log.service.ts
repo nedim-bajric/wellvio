@@ -80,6 +80,10 @@ export class WeightLogService {
     await this.repository.remove(userId, id);
   }
 
+  async removeAllByUserId(userId: string): Promise<void> {
+    await this.repository.removeAllByUserId(userId);
+  }
+
   async analyzeTrend(userId: string): Promise<WeightTrendAnalysis> {
     const entries = await this.chronologicalEntries(userId);
     const activePlan = await this.onboardingService.getActivePlan(userId);

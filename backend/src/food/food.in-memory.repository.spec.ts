@@ -128,4 +128,21 @@ describe('InMemoryFoodRepository', () => {
       );
     });
   });
+
+  describe('removeAllByUserId', () => {
+    it('deletes all foods for the user', async () => {
+      await repository.create(userId, apple());
+      await repository.create(userId, chicken());
+      await repository.create(otherUserId, apple());
+
+      await repository.removeAllByUserId(userId);
+
+      expect(await repository.findAll(userId)).toEqual([]);
+      expect(await repository.findAll(otherUserId)).toHaveLength(1);
+    });
+
+    it('does nothing when the user has no foods', async () => {
+      await expect(repository.removeAllByUserId(userId)).resolves.toBeUndefined();
+    });
+  });
 });

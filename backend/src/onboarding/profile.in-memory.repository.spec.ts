@@ -74,4 +74,18 @@ describe('InMemoryProfileRepository', () => {
       );
     });
   });
+
+  describe('removeByUserId', () => {
+    it('deletes the profile for the user', async () => {
+      await repository.create(userId, createProfileData());
+
+      await repository.removeByUserId(userId);
+
+      expect(await repository.findByUserId(userId)).toBeNull();
+    });
+
+    it('does nothing when the user has no profile', async () => {
+      await expect(repository.removeByUserId(userId)).resolves.toBeUndefined();
+    });
+  });
 });

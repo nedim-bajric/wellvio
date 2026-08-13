@@ -158,4 +158,21 @@ describe('InMemoryWeightLogRepository', () => {
       );
     });
   });
+
+  describe('removeAllByUserId', () => {
+    it('deletes all entries for the user', async () => {
+      await repository.create(userId, { weightKg: 80 });
+      await repository.create(userId, { weightKg: 79 });
+      await repository.create(otherUserId, { weightKg: 70 });
+
+      await repository.removeAllByUserId(userId);
+
+      expect(await repository.findAllByUserId(userId)).toEqual([]);
+      expect(await repository.findAllByUserId(otherUserId)).toHaveLength(1);
+    });
+
+    it('does nothing when the user has no entries', async () => {
+      await expect(repository.removeAllByUserId(userId)).resolves.toBeUndefined();
+    });
+  });
 });

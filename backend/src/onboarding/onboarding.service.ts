@@ -109,6 +109,11 @@ export class OnboardingService {
     return this.profileRepository.update(userId, { currentWeightKg });
   }
 
+  async deleteAccount(userId: string): Promise<void> {
+    await this.planRepository.removeAllByUserId(userId);
+    await this.profileRepository.removeByUserId(userId);
+  }
+
   private buildPlanOptionsResult(
     userProfile: UserProfile,
   ): PlanOptionsResult {

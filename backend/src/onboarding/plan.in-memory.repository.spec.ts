@@ -94,4 +94,25 @@ describe('InMemoryPlanRepository', () => {
       expect(result!.active).toBe(true);
     });
   });
+
+  describe('removeAllByUserId', () => {
+    it('deletes all plans for the user', async () => {
+      await repository.create(createPlanData({ userId, active: true }));
+      await repository.create(createPlanData({ userId, active: false }));
+      await repository.create(
+        createPlanData({ userId: otherUserId, active: true }),
+      );
+
+      await repository.removeAllByUserId(userId);
+
+      expect(await repository.findActiveByUserId(userId)).toBeNull();
+      const otherResult = await repository.findActiveByUserId(otherUserId);
+      expect(otherResult).not.toBeNull();
+      expect(otherResult!.active).toBe(true);
+    });
+
+    it('does nothing when the user has no plans', async () => {
+      await expect(repository.removeAllByUserId(userId)).resolves.toBeUndefined();
+    });
+  });
 });
