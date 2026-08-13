@@ -14,6 +14,7 @@ import { WvBackButton } from '../../components/ui/WvBackButton';
 import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
 import { supabase } from '../../lib/supabase';
+import { showAuthErrorToast } from '../../errors';
 import { MIN_PASSWORD_LENGTH } from '../../constants/auth';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
@@ -43,7 +44,9 @@ export function ResetPasswordScreen({ navigation }: ResetPasswordScreenProps) {
   const [confirm, setConfirm] = useState('');
   const [loading, setLoading] = useState(false);
   const [sessionLoading, setSessionLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [sessionError, setSessionError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | undefined>(undefined);
+  const [confirmError, setConfirmError] = useState<string | undefined>(undefined);
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
@@ -59,7 +62,7 @@ export function ResetPasswordScreen({ navigation }: ResetPasswordScreenProps) {
       const refreshToken = params.refresh_token;
       if (!accessToken || !refreshToken) {
         if (active) {
-          setError('Invalid or expired password reset link.');
+          setSessionError('Invalid or expired password reset link.');
           setSessionLoading(false);
         }
         return;
@@ -70,7 +73,7 @@ export function ResetPasswordScreen({ navigation }: ResetPasswordScreenProps) {
       });
       if (active) {
         if (sessionError) {
-          setError(sessionError.message);
+          setSessionError(sessionError.message);
         }
         setSessionLoading(false);
       }
@@ -88,13 +91,16 @@ export function ResetPasswordScreen({ navigation }: ResetPasswordScreenProps) {
   }, []);
 
   const handleSubmit = async () => {
-    setError(null);
+    setPasswordError(undefined);
+    setConfirmError(undefined);
     if (password.length < MIN_PASSWORD_LENGTH) {
-      setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
+      setPasswordError(
+        `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
+      );
       return;
     }
     if (password !== confirm) {
-      setError('Passwords do not match.');
+      setConfirmError('Passwords do not match.');
       return;
     }
     setLoading(true);
@@ -103,7 +109,7 @@ export function ResetPasswordScreen({ navigation }: ResetPasswordScreenProps) {
     });
     setLoading(false);
     if (updateError) {
-      setError(updateError.message);
+      showAuthErrorToast(updateError);
       return;
     }
     setSuccess(true);
@@ -149,6 +155,10 @@ export function ResetPasswordScreen({ navigation }: ResetPasswordScreenProps) {
             <Text style={[styles.status, { color: theme.colors.textSecondary }]}>
               Checking reset link…
             </Text>
+          ) : sessionError ? (
+            <Text style={[styles.status, { color: theme.colors.error }]}>
+              {sessionError}
+            </Text>
           ) : success ? (
             <Text style={[styles.status, { color: theme.colors.primary }]}>
               Password updated. Redirecting to sign in…
@@ -159,27 +169,29 @@ export function ResetPasswordScreen({ navigation }: ResetPasswordScreenProps) {
                 <WvInput
                   label="New password"
                   value={password}
-                  onChangeText={setPassword}
+                  onChangeText={(text) => {
+                    setPassword(text);
+                    if (passwordError) {
+                      setPasswordError(undefined);
+                    }
+                  }}
                   placeholder={`Min. ${MIN_PASSWORD_LENGTH} characters`}
                   secureTextEntry
+                  error={passwordError}
                 />
                 <WvInput
                   label="Confirm new password"
                   value={confirm}
-                  onChangeText={setConfirm}
+                  onChangeText={(text) => {
+                    setConfirm(text);
+                    if (confirmError) {
+                      setConfirmError(undefined);
+                    }
+                  }}
                   placeholder="Repeat password"
                   secureTextEntry
-                  error={
-                    confirm && confirm !== password
-                      ? 'Passwords do not match'
-                      : undefined
-                  }
+                  error={confirmError}
                 />
-                {error && (
-                  <Text style={[styles.error, { color: theme.colors.error }]}>
-                    {error}
-                  </Text>
-                )}
               </View>
 
               <View style={styles.actions}>
@@ -234,9 +246,5 @@ const styles = StyleSheet.create({
   },
   actions: {
     marginTop: 'auto',
-  },
-  error: {
-    fontSize: 14,
-    textAlign: 'center',
   },
 });
