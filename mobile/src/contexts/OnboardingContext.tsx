@@ -5,12 +5,9 @@ import {
   useCallback,
   type ReactNode,
 } from 'react';
-import { onboardingApi } from '../api/onboardingApi';
-import type {
-  ActivityLevel,
-  CreateProfileData,
-  Gender,
-} from '../types/onboarding';
+import { supabase } from '../lib/supabase';
+import { useAuth } from './AuthContext';
+import type { Gender } from '../types/onboarding';
 
 export interface OnboardingForm {
   gender: Gender;
@@ -28,17 +25,11 @@ const INITIAL_FORM: OnboardingForm = {
   healthDisclaimerAcknowledged: false,
 };
 
-function computeAge(dateOfBirth: string): number | null {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth)) return null;
-  const dob = new Date(`${dateOfBirth}T00:00:00`);
-  if (Number.isNaN(dob.getTime())) return null;
-  const now = new Date();
-  let age = now.getFullYear() - dob.getFullYear();
-  const monthDiff = now.getMonth() - dob.getMonth();
-  if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < dob.getDate())) {
-    age -= 1;
-  }
-  return age >= 0 && age <= 120 ? age : null;
+interface ProfileUpsertData {
+  gender: Gender;
+  date_of_birth: string;
+  height_cm: number;
+  weight_kg: number;
 }
 
 interface OnboardingContextValue {
@@ -52,6 +43,7 @@ interface OnboardingContextValue {
 const OnboardingContext = createContext<OnboardingContextValue | null>(null);
 
 export function OnboardingProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const [form, setForm] = useState<OnboardingForm>(INITIAL_FORM);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,36 +55,26 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }, []);
 
-  const parseProfile = (): { data: CreateProfileData } | { error: string } => {
-    const age = computeAge(form.dateOfBirth);
+  const buildProfilePayload = ():
+    | { data: ProfileUpsertData }
+    | { error: string } => {
     const parsedHeight = parseFloat(form.heightCm);
     const parsedCurrentWeight = parseFloat(form.currentWeightKg);
 
     if (
-      age === null ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(form.dateOfBirth) ||
       Number.isNaN(parsedHeight) ||
       Number.isNaN(parsedCurrentWeight)
     ) {
       return { error: 'Please fill in all fields with valid values' };
     }
 
-    // Activity level and weight goals are configured outside of onboarding,
-    // so default to a maintenance profile until the user updates them.
-    const defaultActivityLevel: ActivityLevel = 'moderate';
-    const defaultGoalWeightKg = parsedCurrentWeight;
-    const defaultTargetDate = new Date();
-    defaultTargetDate.setDate(defaultTargetDate.getDate() + 90);
-
     return {
       data: {
         gender: form.gender,
-        age,
-        heightCm: parsedHeight,
-        currentWeightKg: parsedCurrentWeight,
-        goalWeightKg: defaultGoalWeightKg,
-        activityLevel: defaultActivityLevel,
-        targetDate: defaultTargetDate.toISOString(),
-        healthDisclaimerAcknowledged: form.healthDisclaimerAcknowledged,
+        date_of_birth: form.dateOfBirth,
+        height_cm: parsedHeight,
+        weight_kg: parsedCurrentWeight,
       },
     };
   };
@@ -101,12 +83,32 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     setError(null);
     try {
-      const parsed = parseProfile();
-      if ('error' in parsed) {
-        setError(parsed.error);
+      if (!user) {
+        setError('User not authenticated');
         return false;
       }
-      await onboardingApi.createProfile(parsed.data);
+
+      const payload = buildProfilePayload();
+      if ('error' in payload) {
+        setError(payload.error);
+        return false;
+      }
+
+      const { error: upsertError } = await supabase
+        .from('profiles')
+        .upsert(
+          {
+            user_id: user.id,
+            ...payload.data,
+          },
+          { onConflict: 'user_id' },
+        );
+
+      if (upsertError) {
+        setError(upsertError.message);
+        return false;
+      }
+
       return true;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to save profile';
@@ -115,7 +117,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [form]);
+  }, [form, user]);
 
   return (
     <OnboardingContext.Provider

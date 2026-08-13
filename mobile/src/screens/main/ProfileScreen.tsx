@@ -4,6 +4,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import {
   ChevronRight,
@@ -18,6 +19,9 @@ import {
 import { WvCard } from '../../components/ui/WvCard';
 import { SafeScreen, useTabBarPadding } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
+import { useAuth } from '../../contexts/AuthContext';
+import { useProfile } from '../../hooks/useProfile';
+import { computeAge } from '../../utils/date';
 import type { CompositeNavigationProp } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -41,6 +45,16 @@ function getInitials(name = 'User'): string {
     .toUpperCase();
 }
 
+function formatMemberSince(timestamp: string | undefined): string {
+  if (!timestamp) return 'Member since --';
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) return 'Member since --';
+  return `Member since ${date.toLocaleDateString('en-US', {
+    month: 'short',
+    year: 'numeric',
+  })}`;
+}
+
 interface MenuItem {
   icon: React.ReactNode;
   label: string;
@@ -51,6 +65,32 @@ interface MenuItem {
 export function ProfileScreen({ navigation }: ProfileScreenProps) {
   const theme = useTheme();
   const tabBarPadding = useTabBarPadding();
+  const { user, signOut } = useAuth();
+  const { profile } = useProfile();
+
+  const displayName = (user?.user_metadata?.display_name as string | undefined) ?? '';
+  const email = user?.email ?? '';
+
+  const handleLogout = async () => {
+    const { error } = await signOut();
+    if (error) {
+      Alert.alert('Logout failed', error.message);
+      return;
+    }
+    navigation.getParent()?.navigate('Welcome');
+  };
+
+  const confirmLogout = () => {
+    Alert.alert(
+      'Log out',
+      'Are you sure you want to log out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Log out', style: 'destructive', onPress: handleLogout },
+      ],
+      { cancelable: true },
+    );
+  };
 
   const menuItems: MenuItem[] = [
     {
@@ -85,7 +125,19 @@ export function ProfileScreen({ navigation }: ProfileScreenProps) {
       icon: <LogOut size={20} color={theme.colors.red} />,
       label: 'Log out',
       color: theme.colors.red,
+      onPress: confirmLogout,
     },
+  ];
+
+  const age = profile?.date_of_birth ? computeAge(profile.date_of_birth) : null;
+  const genderLabel = profile?.gender
+    ? profile.gender.charAt(0).toUpperCase() + profile.gender.slice(1)
+    : '--';
+  const stats = [
+    { label: 'Weight', value: profile?.weight_kg ? `${profile.weight_kg} kg` : '--' },
+    { label: 'Height', value: profile?.height_cm ? `${profile.height_cm} cm` : '--' },
+    { label: 'Age', value: age !== null ? String(age) : '--' },
+    { label: 'Gender', value: genderLabel },
   ];
 
   return (
@@ -109,57 +161,30 @@ export function ProfileScreen({ navigation }: ProfileScreenProps) {
               { backgroundColor: theme.colors.primary },
             ]}
           >
-            <Text style={styles.avatarText}>{getInitials('Alex Morgan')}</Text>
+            <Text style={styles.avatarText}>{getInitials(displayName)}</Text>
           </View>
           <View style={styles.profileInfo}>
             <Text
               style={[styles.name, { color: theme.colors.textPrimary }]}
             >
-              Alex Morgan
+              {displayName || 'User'}
             </Text>
             <Text
               style={[styles.email, { color: theme.colors.textTertiary }]}
             >
-              alex.morgan@example.com
+              {email || '--'}
             </Text>
             <Text
               style={[styles.memberSince, { color: theme.colors.textSecondary }]}
             >
-              Member since Jan 2024
+              {formatMemberSince(user?.created_at)}
             </Text>
           </View>
           <ChevronRight size={18} color={theme.colors.textTertiary} />
         </WvCard>
 
-        <WvCard style={styles.activePlanCard}>
-          <View
-            style={[
-              styles.planIcon,
-              { backgroundColor: `${theme.colors.purple}15` },
-            ]}
-          >
-            <Apple size={22} color={theme.colors.purple} />
-          </View>
-          <View style={styles.planInfo}>
-            <Text
-              style={[styles.planLabel, { color: theme.colors.textTertiary }]}
-            >
-              Active plan
-            </Text>
-            <Text
-              style={[styles.planName, { color: theme.colors.textPrimary }]}
-            >
-              Balanced · 2,200 kcal
-            </Text>
-          </View>
-        </WvCard>
-
         <WvCard style={styles.statsCard}>
-          {[
-            { label: 'Weight', value: '70.2 kg' },
-            { label: 'Height', value: '178 cm' },
-            { label: 'Age', value: '29' },
-          ].map((stat) => (
+          {stats.map((stat) => (
             <View key={stat.label} style={styles.statItem}>
               <Text
                 style={[
@@ -267,30 +292,6 @@ const styles = StyleSheet.create({
   memberSince: {
     fontSize: 12,
     marginTop: 4,
-  },
-  activePlanCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    gap: 14,
-  },
-  planIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  planInfo: {
-    flex: 1,
-  },
-  planLabel: {
-    fontSize: 12,
-    marginBottom: 2,
-  },
-  planName: {
-    fontSize: 16,
-    fontWeight: '600',
   },
   statsCard: {
     flexDirection: 'row',
