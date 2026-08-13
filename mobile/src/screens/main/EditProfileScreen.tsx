@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import { ArrowLeft, Camera } from 'lucide-react-native';
 import { WvInput } from '../../components/ui/WvInput';
@@ -14,6 +15,7 @@ import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
 import { useAuth } from '../../contexts/AuthContext';
 import { useProfile } from '../../hooks/useProfile';
+import { supabase } from '../../lib/supabase';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
 
@@ -38,7 +40,7 @@ function formatGender(gender: string | null | undefined): string {
 export function EditProfileScreen({ navigation }: EditProfileScreenProps) {
   const theme = useTheme();
   const { user } = useAuth();
-  const { profile } = useProfile();
+  const { profile, refetch } = useProfile();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -46,6 +48,7 @@ export function EditProfileScreen({ navigation }: EditProfileScreenProps) {
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
   const [gender, setGender] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setName((user?.user_metadata?.display_name as string | undefined) ?? '');
@@ -55,6 +58,42 @@ export function EditProfileScreen({ navigation }: EditProfileScreenProps) {
     setWeight(profile?.weight_kg?.toString() ?? '');
     setGender(formatGender(profile?.gender));
   }, [user, profile]);
+
+  const handleSave = async () => {
+    if (!user) return;
+
+    setSaving(true);
+
+    const { error: authError } = await supabase.auth.updateUser({
+      data: { display_name: name },
+    });
+
+    if (authError) {
+      setSaving(false);
+      Alert.alert('Update failed', authError.message);
+      return;
+    }
+
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({
+        date_of_birth: dob || null,
+        height_cm: height ? parseFloat(height) : null,
+        weight_kg: weight ? parseFloat(weight) : null,
+        gender: gender ? gender.toLowerCase() : null,
+      })
+      .eq('user_id', user.id);
+
+    if (profileError) {
+      setSaving(false);
+      Alert.alert('Update failed', profileError.message);
+      return;
+    }
+
+    await refetch();
+    setSaving(false);
+    navigation.goBack();
+  };
 
   return (
     <SafeScreen>
@@ -142,7 +181,9 @@ export function EditProfileScreen({ navigation }: EditProfileScreenProps) {
       <View style={styles.footer}>
         <WvButton
           title="Save changes"
-          onPress={() => navigation.goBack()}
+          onPress={handleSave}
+          loading={saving}
+          disabled={saving}
         />
       </View>
     </SafeScreen>
