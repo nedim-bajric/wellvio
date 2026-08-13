@@ -14,6 +14,7 @@ import { WvProgressBar } from '../../components/ui/WvProgressBar';
 import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
 import { useAuth } from '../../contexts/AuthContext';
+import { showAuthErrorToast } from '../../errors';
 import { MIN_PASSWORD_LENGTH } from '../../constants/auth';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
@@ -31,7 +32,6 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
   const [confirm, setConfirm] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
 
   const passwordStrength =
     password.length === 0
@@ -46,12 +46,10 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
 
   const handleContinue = async () => {
     if (step === 1) {
-      setAuthError(null);
       setStep(2);
       return;
     }
     setLoading(true);
-    setAuthError(null);
     const { error } = await signUp({
       email,
       password,
@@ -59,7 +57,7 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
     });
     setLoading(false);
     if (error) {
-      setAuthError(error.message);
+      showAuthErrorToast(error);
       return;
     }
     navigation.navigate('Onboarding');
@@ -190,12 +188,6 @@ export function RegisterScreen({ navigation }: RegisterScreenProps) {
             </View>
           )}
 
-          {authError && (
-            <Text style={[styles.authError, { color: theme.colors.error }]}>
-              {authError}
-            </Text>
-          )}
-
           <View style={styles.actions}>
             <WvButton
               title={step === 1 ? 'Continue' : 'Create account'}
@@ -271,10 +263,5 @@ const styles = StyleSheet.create({
   actions: {
     gap: 12,
     marginTop: 'auto',
-  },
-  authError: {
-    fontSize: 14,
-    textAlign: 'center',
-    marginBottom: 16,
   },
 });

@@ -14,6 +14,7 @@ import { WvBackButton } from '../../components/ui/WvBackButton';
 import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
 import { supabase } from '../../lib/supabase';
+import { showAuthErrorToast } from '../../errors';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
 
@@ -28,10 +29,14 @@ export function ForgotPasswordScreen({ navigation }: ForgotPasswordScreenProps) 
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | undefined>(undefined);
 
   const handleSend = async () => {
-    setError(null);
+    if (!email) {
+      setEmailError('Email is required.');
+      return;
+    }
+    setEmailError(undefined);
     setLoading(true);
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(
       email,
@@ -39,7 +44,7 @@ export function ForgotPasswordScreen({ navigation }: ForgotPasswordScreenProps) 
     );
     setLoading(false);
     if (resetError) {
-      setError(resetError.message);
+      showAuthErrorToast(resetError);
       return;
     }
     setSent(true);
@@ -83,12 +88,17 @@ export function ForgotPasswordScreen({ navigation }: ForgotPasswordScreenProps) 
               <WvInput
                 label="Email"
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  if (emailError) {
+                    setEmailError(undefined);
+                  }
+                }}
                 placeholder="you@example.com"
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
-                error={error ?? undefined}
+                error={emailError}
               />
 
               <View style={styles.actions}>
