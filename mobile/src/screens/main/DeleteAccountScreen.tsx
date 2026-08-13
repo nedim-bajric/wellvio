@@ -81,15 +81,13 @@ export function DeleteAccountScreen({ navigation }: DeleteAccountScreenProps) {
       return;
     }
 
-    const { error: signOutError } = await signOut();
+    await signOut();
     setLoading(false);
 
-    if (signOutError) {
-      setError(signOutError.message);
-      return;
-    }
-
-    navigation.getParent()?.navigate('Welcome');
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Welcome' }],
+    });
   };
 
   const confirmDelete = () => {
