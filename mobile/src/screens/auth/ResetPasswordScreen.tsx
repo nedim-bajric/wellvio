@@ -81,7 +81,7 @@ export function ResetPasswordScreen({ navigation }: ResetPasswordScreenProps) {
         const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
         if (active) {
           if (exchangeError) {
-            setError(exchangeError.message);
+            setSessionError(exchangeError.message);
           }
           setSessionLoading(false);
         }

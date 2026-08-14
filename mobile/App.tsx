@@ -1,4 +1,5 @@
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Toaster } from 'sonner-native';
 import { OnboardingProvider } from './src/contexts/OnboardingContext';
 import { AuthProvider } from './src/contexts/AuthContext';
@@ -53,12 +54,14 @@ function AppContent() {
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <AuthProvider>
-        <OnboardingProvider>
-          <AppContent />
-        </OnboardingProvider>
-      </AuthProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <AuthProvider>
+          <OnboardingProvider>
+            <AppContent />
+          </OnboardingProvider>
+        </AuthProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

@@ -110,18 +110,15 @@ export function MainNavigator() {
         name="Diary"
         component={DiaryScreen}
       />
-      <Tab.Screen
+      {/* Not working yet */}
+      {/* <Tab.Screen
         name="Activity"
         component={ActivityScreen}
       />
       <Tab.Screen
         name="Health"
         component={HealthScreen}
-      />
-      <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
-      />
+      /> */}
     </Tab.Navigator>
   );
 }

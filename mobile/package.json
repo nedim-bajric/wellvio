@@ -23,7 +23,9 @@
     "sonner-native": "^0.26.5"
   },
   "devDependencies": {
+    "@babel/core": "^7.25.2",
     "@types/react": "~19.2.2",
+    "babel-preset-expo": "~57.0.4",
     "typescript": "~6.0.3"
   },
   "scripts": {
