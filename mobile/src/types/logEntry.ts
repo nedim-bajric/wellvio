@@ -22,6 +22,7 @@ export interface CreateLogEntryData {
   grams: number;
   mealSlot: MealSlot;
   loggedAt?: string;
+  nutrients?: Nutrients;
 }
 
 export type UpdateLogEntryData = Partial<CreateLogEntryData>;

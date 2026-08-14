@@ -63,13 +63,23 @@ export function QuickAddScreen({ navigation, route }: QuickAddScreenProps) {
       Alert.alert('Enter calories');
       return;
     }
+    const protein = parseFloat(values.protein) || 0;
+    const carbs = parseFloat(values.carbs) || 0;
+    const fat = parseFloat(values.fat) || 0;
+
     setLoading(true);
     try {
       await logEntryApi.create({
         foodId: 'quick-add',
-        grams: calories,
+        grams: 0,
         mealSlot,
         loggedAt: new Date().toISOString(),
+        nutrients: {
+          calories,
+          protein,
+          carbs,
+          fat,
+        },
       });
       navigation.navigate('Main');
     } catch (err) {

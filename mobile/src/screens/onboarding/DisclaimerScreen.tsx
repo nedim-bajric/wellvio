@@ -35,7 +35,7 @@ export function DisclaimerScreen({ navigation }: DisclaimerScreenProps) {
   const handleContinue = async () => {
     const created = await createProfile();
     if (created) {
-      navigation.navigate('Success');
+      navigation.navigate('CreatePlan');
     }
   };
 

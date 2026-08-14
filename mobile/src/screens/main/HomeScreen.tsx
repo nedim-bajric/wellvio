@@ -19,7 +19,10 @@ import { useTheme } from '../../theme/index';
 import { logEntryApi } from '../../api/logEntryApi';
 import { getErrorMessage } from '../../utils/errorMessage';
 import { formatToday } from '../../utils/date';
+import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
 import type { DailyDashboard, LogEntry, MealSlot } from '../../types/logEntry';
+import type { Plan } from '../../types/weight';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { CompositeNavigationProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -69,10 +72,60 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
   const theme = useTheme();
   const { width } = useWindowDimensions();
   const tabBarPadding = useTabBarPadding();
+  const { user } = useAuth();
   const [dashboard, setDashboard] = useState<DailyDashboard | null>(null);
   const [entries, setEntries] = useState<LogEntry[]>([]);
+  const [activePlan, setActivePlan] = useState<Plan | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const loadActivePlan = useCallback(async () => {
+    if (!user) {
+      setActivePlan(null);
+      return;
+    }
+    const { data } = await supabase
+      .from('profiles')
+      .select('active_plan_id')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (!data?.active_plan_id) {
+      setActivePlan(null);
+      return;
+    }
+
+    const { data: plan } = await supabase
+      .from('plans')
+      .select('*')
+      .eq('id', data.active_plan_id)
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (plan) {
+      setActivePlan({
+        id: plan.id,
+        userId: plan.user_id,
+        profileId: plan.profile_id,
+        targetCalories: plan.target_calories,
+        targetNutrients: {
+          calories: plan.target_calories,
+          protein: plan.target_protein,
+          carbs: plan.target_carbs,
+          fat: plan.target_fat,
+        },
+        dailyDeficit: plan.daily_deficit,
+        daysToTarget: plan.days_to_target,
+        rate: plan.rate,
+        safe: plan.safe,
+        active: plan.active,
+        createdAt: plan.created_at,
+        updatedAt: plan.updated_at,
+      });
+    } else {
+      setActivePlan(null);
+    }
+  }, [user]);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -84,12 +137,13 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
       ]);
       setDashboard(dash);
       setEntries(list);
+      await loadActivePlan();
     } catch (err) {
       setError(getErrorMessage(err, 'Failed to load dashboard'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [loadActivePlan]);
 
   useEffect(() => {
     void loadData();
@@ -179,6 +233,37 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
             </View>
           </TouchableOpacity>
         </View>
+
+        {activePlan === null && (
+          <TouchableOpacity
+            onPress={() => navigation.navigate('CreatePlan', { returnToMain: true })}
+            activeOpacity={0.8}
+          >
+            <WvCard style={styles.createPlanPrompt}>
+              <View style={styles.createPlanInner}>
+                <View>
+                  <Text
+                    style={[
+                      styles.createPlanTitle,
+                      { color: theme.colors.textPrimary },
+                    ]}
+                  >
+                    Create your plan
+                  </Text>
+                  <Text
+                    style={[
+                      styles.createPlanSubtitle,
+                      { color: theme.colors.textTertiary },
+                    ]}
+                  >
+                    Set a goal to start tracking
+                  </Text>
+                </View>
+                <ChevronRight size={18} color={theme.colors.textTertiary} />
+              </View>
+            </WvCard>
+          </TouchableOpacity>
+        )}
 
         <View style={styles.hero}>
           <View style={styles.rings}>
@@ -727,6 +812,24 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   weightPromptSubtitle: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  createPlanPrompt: {
+    marginBottom: 16,
+  },
+  createPlanInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+  },
+  createPlanTitle: {
+    fontSize: 15,
+    fontWeight: '500',
+  },
+  createPlanSubtitle: {
     fontSize: 12,
     marginTop: 2,
   },

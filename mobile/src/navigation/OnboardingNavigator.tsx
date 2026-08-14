@@ -3,6 +3,7 @@ import {
   CarouselScreen,
   PersonalProfileScreen,
   DisclaimerScreen,
+  CreatePlanScreen,
   SuccessScreen,
 } from '../screens/onboarding/index';
 import type { OnboardingStackParamList } from './types';
@@ -20,6 +21,7 @@ export function OnboardingNavigator() {
       <Stack.Screen name="Carousel" component={CarouselScreen} />
       <Stack.Screen name="PersonalProfile" component={PersonalProfileScreen} />
       <Stack.Screen name="Disclaimer" component={DisclaimerScreen} />
+      <Stack.Screen name="CreatePlan" component={CreatePlanScreen} />
       <Stack.Screen name="Success" component={SuccessScreen} />
     </Stack.Navigator>
   );

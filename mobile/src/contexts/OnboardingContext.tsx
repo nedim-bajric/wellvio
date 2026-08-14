@@ -110,6 +110,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
           {
             user_id: session.user.id,
             ...payload.data,
+            health_disclaimer_acknowledged: true,
           },
           { onConflict: 'user_id' },
         );

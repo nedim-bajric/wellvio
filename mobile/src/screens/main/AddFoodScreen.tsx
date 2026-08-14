@@ -192,7 +192,7 @@ export function AddFoodScreen({ navigation, route }: AddFoodScreenProps) {
               <Text style={[styles.emptyText, { color: theme.colors.textTertiary }]}>
                 {query ? `No results for "${query}"` : 'No foods found'}
               </Text>
-              <TouchableOpacity onPress={() => {}}>
+              <TouchableOpacity onPress={() => navigation.navigate('FoodCatalog')}>
                 <Text style={[styles.createText, { color: theme.colors.primary }]}>
                   Create custom food
                 </Text>

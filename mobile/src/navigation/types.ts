@@ -13,6 +13,7 @@ export type OnboardingStackParamList = {
   Carousel: undefined;
   PersonalProfile: undefined;
   Disclaimer: undefined;
+  CreatePlan: undefined;
   Success: undefined;
 };
 
@@ -69,9 +70,11 @@ export type RootStackParamList = {
   ResetPassword: undefined;
   Onboarding: undefined;
   Main: undefined;
+  CreatePlan: { returnToMain?: boolean } | undefined;
   AddFood: { mealSlot?: MealSlot } | undefined;
   FoodDetail: { foodId: string; mealSlot?: MealSlot };
   QuickAdd: { mealSlot?: MealSlot } | undefined;
+  FoodCatalog: undefined;
   WeightLog: undefined;
   LogWorkout: undefined;
   SleepDetail: undefined;

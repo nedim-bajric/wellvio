@@ -24,6 +24,8 @@ import {
   DeleteAccountScreen,
   PlanSettingsScreen,
 } from '../screens/main/index';
+import { FoodCatalogScreen } from '../screens/FoodCatalogScreen';
+import { CreatePlanScreen } from '../screens/onboarding/CreatePlanScreen';
 import { OnboardingNavigator } from './OnboardingNavigator';
 import { MainNavigator } from './MainNavigator';
 import type { RootStackParamList } from './types';
@@ -51,9 +53,11 @@ export function RootNavigator() {
         <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
         <Stack.Screen name="Onboarding" component={OnboardingNavigator} />
         <Stack.Screen name="Main" component={MainNavigator} />
+        <Stack.Screen name="CreatePlan" component={CreatePlanScreen} />
         <Stack.Screen name="AddFood" component={AddFoodScreen} />
         <Stack.Screen name="FoodDetail" component={FoodDetailScreen} />
         <Stack.Screen name="QuickAdd" component={QuickAddScreen} />
+        <Stack.Screen name="FoodCatalog" component={FoodCatalogScreen} />
         <Stack.Screen name="WeightLog" component={WeightLogScreen} />
         <Stack.Screen name="LogWorkout" component={LogWorkoutScreen} />
         <Stack.Screen name="SleepDetail" component={SleepDetailScreen} />
