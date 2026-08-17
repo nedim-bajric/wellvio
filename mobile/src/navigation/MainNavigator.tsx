@@ -110,6 +110,10 @@ export function MainNavigator() {
         name="Diary"
         component={DiaryScreen}
       />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+      />
       {/* Not working yet */}
       {/* <Tab.Screen
         name="Activity"

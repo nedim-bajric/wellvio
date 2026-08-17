@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Target,
   Apple,
+  Utensils,
   Settings,
   Smartphone,
   HelpCircle,
@@ -103,6 +104,11 @@ export function ProfileScreen({ navigation }: ProfileScreenProps) {
       icon: <Apple size={20} color={theme.colors.purple} />,
       label: 'Plan settings',
       onPress: () => navigation.navigate('PlanSettings'),
+    },
+    {
+      icon: <Utensils size={20} color={theme.colors.activityGreen} />,
+      label: 'My foods',
+      onPress: () => navigation.navigate('FoodCatalog'),
     },
     {
       icon: <Settings size={20} color={theme.colors.blue} />,

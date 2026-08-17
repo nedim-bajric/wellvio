@@ -8,13 +8,27 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
+import { ArrowLeft } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
 import { foodApi } from '../api/foodApi';
 import { FoodForm } from '../components/FoodForm';
 import { FoodListItem } from '../components/FoodListItem';
+import { SafeScreen } from '../components/SafeScreen';
+import { WvIconButton } from '../components/ui/WvIconButton';
+import { useTheme } from '../theme/index';
 import { getErrorMessage } from '../utils/errorMessage';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { CreateFoodData, Food, UpdateFoodData } from '../types/food';
+import type { RootStackParamList } from '../navigation/types';
+
+type FoodCatalogNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'FoodCatalog'
+>;
 
 export function FoodCatalogScreen() {
+  const theme = useTheme();
+  const navigation = useNavigation<FoodCatalogNavigationProp>();
   const [foods, setFoods] = useState<Food[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,6 +57,7 @@ export function FoodCatalogScreen() {
       const created = await foodApi.create(data);
       setFoods((prev) => [...prev, created]);
       setShowForm(false);
+      navigation.goBack();
     } catch (err) {
       Alert.alert('Error', getErrorMessage(err, 'Create failed'));
     }
@@ -96,17 +111,37 @@ export function FoodCatalogScreen() {
 
   if (showForm || editingFood) {
     return (
-      <FoodForm
-        initial={editingFood ?? undefined}
-        onSubmit={editingFood ? handleUpdate : handleCreate}
-        onCancel={cancelForm}
-      />
+      <SafeScreen>
+        <View style={styles.header}>
+          <WvIconButton
+            icon={<ArrowLeft size={20} color={theme.colors.textPrimary} />}
+            onPress={() => navigation.goBack()}
+          />
+          <Text style={[styles.headerTitle, { color: theme.colors.textPrimary }]}>
+            {editingFood ? 'Edit food' : 'New food'}
+          </Text>
+        </View>
+        <FoodForm
+          initial={editingFood ?? undefined}
+          onSubmit={editingFood ? handleUpdate : handleCreate}
+          onCancel={cancelForm}
+        />
+      </SafeScreen>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Food catalog</Text>
+    <SafeScreen>
+      <View style={styles.header}>
+        <WvIconButton
+          icon={<ArrowLeft size={20} color={theme.colors.textPrimary} />}
+          onPress={() => navigation.goBack()}
+        />
+        <Text style={[styles.headerTitle, { color: theme.colors.textPrimary }]}>
+          Food catalog
+        </Text>
+      </View>
+
       {error && <Text style={styles.error}>{error}</Text>}
       <View style={styles.actions}>
         <Button title="Add food" onPress={startCreate} />
@@ -130,29 +165,32 @@ export function FoodCatalogScreen() {
           }
         />
       )}
-    </View>
+    </SafeScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    paddingTop: 48,
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 16,
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '600',
   },
   error: {
     color: 'red',
     marginBottom: 12,
+    paddingHorizontal: 16,
   },
   actions: {
     flexDirection: 'row',
     gap: 12,
     marginBottom: 16,
+    paddingHorizontal: 16,
   },
   loader: {
     marginTop: 24,

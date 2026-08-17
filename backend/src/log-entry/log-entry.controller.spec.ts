@@ -146,5 +146,11 @@ describe('LogEntryController', () => {
 
       expect(service.remove).toHaveBeenCalledWith(userId, 'entry-1');
     });
+
+    it('throws LogEntryDeletePastError when the entry is not from today', async () => {
+      jest.spyOn(service, 'remove').mockRejectedValue(new Error('Cannot delete past log entry'));
+
+      await expect(controller.remove(userId, 'entry-1')).rejects.toThrow('Cannot delete past log entry');
+    });
   });
 });

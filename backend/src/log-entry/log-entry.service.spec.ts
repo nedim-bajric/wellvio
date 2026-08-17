@@ -4,6 +4,7 @@ import { LOG_ENTRY_REPOSITORY } from './log-entry.repository.js';
 import { FoodService } from '../food/food.service.js';
 import { OnboardingService } from '../onboarding/onboarding.service.js';
 import { LogEntryNotFoundError } from './log-entry-not-found.error.js';
+import { LogEntryDeletePastError } from './log-entry-delete-past.error.js';
 import { FoodNotFoundError } from '../food/food-not-found.error.js';
 import type { LogEntryRepository } from './log-entry.repository.js';
 import type { LogEntry } from './log-entry.types.js';
@@ -199,6 +200,16 @@ describe('LogEntryService', () => {
 
       await expect(service.remove(userId, 'entry-1')).rejects.toThrow(
         LogEntryNotFoundError,
+      );
+    });
+
+    it('throws when the entry is not from today', async () => {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      jest.spyOn(repository, 'findOne').mockResolvedValue(makeEntry({ loggedAt: yesterday }));
+
+      await expect(service.remove(userId, 'entry-1')).rejects.toThrow(
+        LogEntryDeletePastError,
       );
     });
   });

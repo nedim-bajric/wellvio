@@ -96,6 +96,14 @@ async function getCurrentUserId(): Promise<string> {
   return userId;
 }
 
+function dateKey(date: Date | string): string {
+  return new Date(date).toISOString().slice(0, 10);
+}
+
+export function isToday(date: Date | string): boolean {
+  return dateKey(date) === dateKey(new Date());
+}
+
 function dayBounds(dateKey: string): { start: string; end: string } {
   return {
     start: `${dateKey}T00:00:00Z`,
@@ -250,13 +258,39 @@ export const logEntryApi = {
   async create(data: CreateLogEntryData): Promise<LogEntry> {
     const userId = await getCurrentUserId();
 
-    let foodName = 'Quick add';
+    let foodName: string;
     let nutrients: Nutrients;
+    let foodId: string | undefined;
 
     if (data.nutrients) {
-      foodName = 'Quick add';
+      // Quick-add: create a reusable catalog food from the portion data,
+      // then link the log entry to it.
+      const quickName = data.title?.trim() || 'Quick add';
+      if (data.grams <= 0) {
+        throw new Error('Grams must be greater than 0');
+      }
+      const factor = 100 / data.grams;
+      const { data: foodRow, error: foodError } = await supabase
+        .from('foods')
+        .insert({
+          user_id: userId,
+          name: quickName,
+          calories_per_100g: roundToOneDecimal(data.nutrients.calories * factor),
+          protein_per_100g: roundToOneDecimal(data.nutrients.protein * factor),
+          carbs_per_100g: roundToOneDecimal(data.nutrients.carbs * factor),
+          fat_per_100g: roundToOneDecimal(data.nutrients.fat * factor),
+        })
+        .select()
+        .single();
+
+      if (foodError || !foodRow) {
+        throw new Error(foodError?.message ?? 'Failed to create quick-add food');
+      }
+
+      foodName = quickName;
+      foodId = foodRow.id;
       nutrients = data.nutrients;
-    } else if (data.foodId && data.foodId !== 'quick-add') {
+    } else if (data.foodId) {
       const { data: food, error: foodError } = await supabase
         .from('foods')
         .select('*')
@@ -268,6 +302,7 @@ export const logEntryApi = {
       }
 
       foodName = food.name;
+      foodId = data.foodId;
       nutrients = scaleNutrients(
         {
           calories: food.calories_per_100g,
@@ -278,6 +313,8 @@ export const logEntryApi = {
         data.grams,
       );
     } else {
+      // Legacy fallback: treat grams as calories.
+      foodName = 'Quick add';
       nutrients = {
         calories: data.grams,
         protein: 0,
@@ -291,6 +328,7 @@ export const logEntryApi = {
       .insert(
         toCreateRow({
           ...data,
+          foodId,
           userId,
           foodName,
           nutrients,
@@ -308,6 +346,20 @@ export const logEntryApi = {
 
   async update(id: string, data: UpdateLogEntryData): Promise<LogEntry> {
     const userId = await getCurrentUserId();
+
+    const { data: existingRow, error: fetchError } = await supabase
+      .from('log_entries')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', userId)
+      .single();
+
+    if (fetchError || !existingRow) {
+      throw new Error(fetchError?.message ?? 'Log entry not found');
+    }
+
+    const existing = toLogEntry(existingRow as LogEntryRow);
+    const isQuickAdd = !existing.foodId;
     const update: Partial<Omit<LogEntryRow, 'id' | 'user_id' | 'created_at' | 'updated_at'>> = {};
 
     if (data.mealSlot !== undefined) {
@@ -317,11 +369,25 @@ export const logEntryApi = {
       update.logged_at = data.loggedAt;
     }
 
-    if (data.grams !== undefined && data.foodId && data.foodId !== 'quick-add') {
+    if (isQuickAdd) {
+      if (data.title !== undefined) {
+        update.food_name = data.title.trim() || 'Quick add';
+      }
+      if (data.grams !== undefined) {
+        update.grams = data.grams;
+      }
+      if (data.nutrients) {
+        update.calories = data.nutrients.calories;
+        update.protein = data.nutrients.protein;
+        update.carbs = data.nutrients.carbs;
+        update.fat = data.nutrients.fat;
+      }
+    } else if (data.grams !== undefined) {
+      const foodId = data.foodId ?? existing.foodId;
       const { data: food, error: foodError } = await supabase
         .from('foods')
         .select('*')
-        .eq('id', data.foodId)
+        .eq('id', foodId)
         .single();
 
       if (foodError || !food) {
@@ -361,6 +427,22 @@ export const logEntryApi = {
 
   async remove(id: string): Promise<void> {
     const userId = await getCurrentUserId();
+
+    const { data: existingRow, error: fetchError } = await supabase
+      .from('log_entries')
+      .select('logged_at')
+      .eq('id', id)
+      .eq('user_id', userId)
+      .single();
+
+    if (fetchError || !existingRow) {
+      throw new Error(fetchError?.message ?? 'Log entry not found');
+    }
+
+    if (!isToday(existingRow.logged_at)) {
+      throw new Error('You can only delete entries from today');
+    }
+
     const { error } = await supabase
       .from('log_entries')
       .delete()

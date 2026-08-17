@@ -13,6 +13,7 @@ import {
 import { LogEntryService } from './log-entry.service.js';
 import { LogEntryNotFoundError } from './log-entry-not-found.error.js';
 import { LogEntryNotFoundFilter } from './log-entry-not-found.filter.js';
+import { LogEntryDeletePastFilter } from './log-entry-delete-past.filter.js';
 import { FoodNotFoundError } from '../food/food-not-found.error.js';
 import { FoodNotFoundFilter } from '../food/food-not-found.filter.js';
 import type {
@@ -27,7 +28,7 @@ function parseDateParam(date?: string): Date {
 }
 
 @Controller('log-entries')
-@UseFilters(LogEntryNotFoundFilter, FoodNotFoundFilter)
+@UseFilters(LogEntryNotFoundFilter, LogEntryDeletePastFilter, FoodNotFoundFilter)
 export class LogEntryController {
   constructor(private readonly logEntryService: LogEntryService) {}
 

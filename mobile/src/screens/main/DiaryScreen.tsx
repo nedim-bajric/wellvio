@@ -1,21 +1,28 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
+  FlatList,
   TouchableOpacity,
   RefreshControl,
+  Alert,
 } from 'react-native';
-import { ChevronLeft, ChevronRight, Plus, Edit2 } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { WvCard } from '../../components/ui/WvCard';
 import { WvProgressBar } from '../../components/ui/WvProgressBar';
 import { SafeScreen, useTabBarPadding } from '../../components/SafeScreen';
+import { FloatingAddButton } from '../../components/FloatingAddButton';
+import {
+  LogEntryBottomSheet,
+  type LogEntryBottomSheetRef,
+} from '../../components/LogEntryBottomSheet';
+import { LogEntryListItem } from '../../components/LogEntryListItem';
 import { useTheme } from '../../theme/index';
-import { logEntryApi } from '../../api/logEntryApi';
+import { logEntryApi, isToday } from '../../api/logEntryApi';
 import { getErrorMessage } from '../../utils/errorMessage';
-import { formatToday } from '../../utils/date';
-import type { DailyDashboard, LogEntry, MealSlot } from '../../types/logEntry';
+import type { DailyDashboard, LogEntry } from '../../types/logEntry';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { CompositeNavigationProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -29,15 +36,6 @@ type DiaryScreenNavigationProp = CompositeNavigationProp<
 interface DiaryScreenProps {
   navigation: DiaryScreenNavigationProp;
 }
-
-const slotBudgetRatios: Record<MealSlot, number> = {
-  breakfast: 0.25,
-  lunch: 0.35,
-  dinner: 0.35,
-  snacks: 0.05,
-};
-
-const mealSlots: MealSlot[] = ['breakfast', 'lunch', 'dinner', 'snacks'];
 
 function addDays(date: Date, days: number): Date {
   const result = new Date(date);
@@ -53,9 +51,18 @@ function formatDateKey(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
 
+function formatFullDate(date: Date): string {
+  return date.toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
 export function DiaryScreen({ navigation }: DiaryScreenProps) {
   const theme = useTheme();
   const tabBarPadding = useTabBarPadding();
+  const sheetRef = useRef<LogEntryBottomSheetRef>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [dashboard, setDashboard] = useState<DailyDashboard | null>(null);
@@ -80,25 +87,71 @@ export function DiaryScreen({ navigation }: DiaryScreenProps) {
     }
   }, [selectedDate]);
 
-  useEffect(() => {
-    void loadData();
-  }, [loadData]);
+  const handleEditEntry = useCallback((entry: LogEntry) => {
+    sheetRef.current?.presentForEdit(entry);
+  }, []);
 
-  const totalTarget = dashboard?.targets?.calories ?? 2000;
+  const handleDeleteEntry = useCallback(
+    async (entry: LogEntry) => {
+      try {
+        await logEntryApi.remove(entry.id);
+        await loadData();
+      } catch (err) {
+        Alert.alert('Error', getErrorMessage(err, 'Failed to delete entry'));
+      }
+    },
+    [loadData],
+  );
+
+  const handleEntryLongPress = useCallback(
+    (entry: LogEntry) => {
+      const canDelete = isToday(entry.loggedAt);
+      const options: { text: string; style?: 'cancel' | 'destructive'; onPress?: () => void }[] = [
+        { text: 'Edit', onPress: () => handleEditEntry(entry) },
+      ];
+      if (canDelete) {
+        options.push({
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            Alert.alert('Delete entry', `Delete "${entry.foodName}"?`, [
+              { text: 'Cancel', style: 'cancel' },
+              {
+                text: 'Delete',
+                style: 'destructive',
+                onPress: () => void handleDeleteEntry(entry),
+              },
+            ]);
+          },
+        });
+      }
+      options.push({ text: 'Cancel', style: 'cancel' });
+      Alert.alert(entry.foodName, undefined, options);
+    },
+    [handleEditEntry, handleDeleteEntry],
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      void loadData();
+    }, [loadData]),
+  );
+
+  const totals = dashboard?.totals ?? { calories: 0, protein: 0, carbs: 0, fat: 0 };
+  const targets = dashboard?.targets;
+  const remaining = dashboard?.remaining ?? {
+    calories: (targets?.calories ?? 0) - totals.calories,
+    protein: (targets?.protein ?? 0) - totals.protein,
+    carbs: (targets?.carbs ?? 0) - totals.carbs,
+    fat: (targets?.fat ?? 0) - totals.fat,
+  };
+
+  const calorieTarget = targets?.calories ?? 0;
+  const calorieProgress = calorieTarget > 0 ? totals.calories / calorieTarget : 0;
 
   const dates = [-2, -1, 0, 1, 2].map((offset) => addDays(selectedDate, offset));
 
-  const entriesBySlot: Record<MealSlot, LogEntry[]> = {
-    breakfast: [],
-    lunch: [],
-    dinner: [],
-    snacks: [],
-  };
-  entries.forEach((entry) => {
-    entriesBySlot[entry.mealSlot].push(entry);
-  });
-
-  const totals = dashboard?.totals ?? { calories: 0, protein: 0, carbs: 0, fat: 0 };
+  const selectedIsToday = formatDateKey(selectedDate) === formatDateKey(new Date());
 
   return (
     <SafeScreen hasTabBar>
@@ -165,174 +218,94 @@ export function DiaryScreen({ navigation }: DiaryScreenProps) {
         </TouchableOpacity>
       </View>
 
-      <ScrollView
+      <FlatList
+        data={entries}
+        keyExtractor={(item) => item.id}
         contentContainerStyle={[
           styles.scroll,
-          { paddingBottom: tabBarPadding },
+          { paddingBottom: tabBarPadding + 96 },
         ]}
         refreshControl={
           <RefreshControl refreshing={loading} onRefresh={loadData} />
         }
-      >
-        {mealSlots.map((slot) => {
-          const budget = Math.round(totalTarget * slotBudgetRatios[slot]);
-          const slotEntries = entriesBySlot[slot];
-          const totalKcal = Math.round(
-            slotEntries.reduce((sum, e) => sum + e.nutrients.calories, 0),
-          );
-          const progress = budget > 0 ? totalKcal / budget : 0;
+        ListHeaderComponent={
+          <View>
+            <Text style={[styles.dateTitle, { color: theme.colors.textPrimary }]}>
+              {selectedIsToday ? 'Today' : formatFullDate(selectedDate)}
+            </Text>
 
-          return (
-            <WvCard key={slot} style={styles.mealCard}>
-              <View style={styles.mealHeader}>
+            <WvCard style={styles.summaryCard}>
+              <View style={styles.summaryHeader}>
                 <View>
                   <Text
-                    style={[
-                      styles.mealName,
-                      { color: theme.colors.textPrimary },
-                    ]}
+                    style={[styles.summaryValue, { color: theme.colors.textPrimary }]}
                   >
-                    {slot.charAt(0).toUpperCase() + slot.slice(1)}
+                    {Math.round(totals.calories)}
+                    <Text style={[styles.summaryUnit, { color: theme.colors.textTertiary }]}>
+                      {' '}
+                      / {calorieTarget > 0 ? Math.round(calorieTarget) : '-'} kcal
+                    </Text>
                   </Text>
-                  <Text
-                    style={[
-                      styles.mealBudget,
-                      { color: theme.colors.textTertiary },
-                    ]}
-                  >
-                    {totalKcal} / {budget} kcal
+                  <Text style={[styles.summaryLabel, { color: theme.colors.textSecondary }]}>
+                    {Math.max(remaining.calories, 0)} kcal remaining
                   </Text>
                 </View>
-                <TouchableOpacity
-                  onPress={() =>
-                    navigation.navigate('AddFood', { mealSlot: slot })
-                  }
-                  style={[
-                    styles.addButton,
-                    { backgroundColor: theme.colors.primary },
-                  ]}
-                >
-                  <Plus size={16} color="#000000" />
-                </TouchableOpacity>
-              </View>
-
-              {slotEntries.length > 0 && (
-                <View
-                  style={[
-                    styles.foodList,
-                    {
-                      borderTopColor: theme.colors.border,
-                    },
-                  ]}
-                >
-                  {slotEntries.map((entry) => (
-                    <View key={entry.id} style={styles.foodRow}>
-                      <View style={styles.foodInfo}>
-                        <Text
-                          style={[
-                            styles.foodName,
-                            { color: theme.colors.textPrimary },
-                          ]}
-                        >
-                          {entry.foodName}
-                        </Text>
-                        <Text
-                          style={[
-                            styles.foodMeta,
-                            { color: theme.colors.textTertiary },
-                          ]}
-                        >
-                          {entry.grams}g · P{Math.round(entry.nutrients.protein)}{' '}
-                          C{Math.round(entry.nutrients.carbs)} F
-                          {Math.round(entry.nutrients.fat)}
-                        </Text>
-                      </View>
-                      <View style={styles.foodRight}>
-                        <Text
-                          style={[
-                            styles.foodKcal,
-                            { color: theme.colors.textPrimary },
-                          ]}
-                        >
-                          {Math.round(entry.nutrients.calories)}
-                        </Text>
-                        <TouchableOpacity
-                          onPress={() => {}}
-                          style={styles.editButton}
-                        >
-                          <Edit2 size={14} color={theme.colors.textTertiary} />
-                        </TouchableOpacity>
-                      </View>
+                <View style={styles.macroPills}>
+                  {[
+                    { label: 'P', value: Math.round(totals.protein), target: targets?.protein, color: theme.colors.blue },
+                    { label: 'C', value: Math.round(totals.carbs), target: targets?.carbs, color: theme.colors.orange },
+                    { label: 'F', value: Math.round(totals.fat), target: targets?.fat, color: theme.colors.purple },
+                  ].map((m) => (
+                    <View key={m.label} style={styles.macroPill}>
+                      <Text style={[styles.macroPillValue, { color: m.color }]}>
+                        {m.value}
+                      </Text>
+                      <Text style={[styles.macroPillUnit, { color: theme.colors.textTertiary }]}>
+                        {m.label}
+                        {m.target !== undefined && m.target !== null ? ` / ${Math.round(m.target)}` : ''}
+                      </Text>
                     </View>
                   ))}
                 </View>
-              )}
-
-              {slotEntries.length === 0 && (
-                <View
-                  style={[
-                    styles.emptyRow,
-                    { borderTopColor: theme.colors.border },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.emptyText,
-                      { color: theme.colors.textTertiary },
-                    ]}
-                  >
-                    Nothing logged yet
-                  </Text>
-                </View>
-              )}
-            </WvCard>
-          );
-        })}
-
-        <WvCard style={styles.totalCard}>
-          <Text
-            style={[
-              styles.totalLabel,
-              { color: theme.colors.textSecondary },
-            ]}
-          >
-            Daily total
-          </Text>
-          <View style={styles.totalRow}>
-            {[
-              { label: 'Calories', value: `${Math.round(totals.calories)}`, color: theme.colors.primary },
-              { label: 'Protein', value: `${Math.round(totals.protein)}g`, color: theme.colors.blue },
-              { label: 'Carbs', value: `${Math.round(totals.carbs)}g`, color: theme.colors.orange },
-              { label: 'Fat', value: `${Math.round(totals.fat)}g`, color: theme.colors.purple },
-            ].map((m) => (
-              <View key={m.label} style={styles.totalItem}>
-                <Text
-                  style={[
-                    styles.totalValue,
-                    { color: m.color },
-                  ]}
-                >
-                  {m.value}
-                </Text>
-                <Text
-                  style={[
-                    styles.totalUnit,
-                    { color: theme.colors.textTertiary },
-                  ]}
-                >
-                  {m.label}
-                </Text>
               </View>
-            ))}
-          </View>
-        </WvCard>
+              <WvProgressBar
+                progress={calorieProgress}
+                color={calorieProgress > 1 ? theme.colors.red : theme.colors.primary}
+                bgColor={theme.colors.border}
+                height={8}
+                style={styles.progressBar}
+              />
+            </WvCard>
 
-        {error && (
-          <Text style={[styles.error, { color: theme.colors.error }]}>
-            {error}
-          </Text>
+            <Text style={[styles.sectionTitle, { color: theme.colors.textPrimary }]}>
+              Entries
+            </Text>
+          </View>
+        }
+        renderItem={({ item }) => (
+          <LogEntryListItem
+            entry={item}
+            onPress={handleEditEntry}
+            onLongPress={handleEntryLongPress}
+          />
         )}
-      </ScrollView>
+        ListEmptyComponent={
+          <WvCard style={styles.emptyCard}>
+            <Text style={[styles.emptyText, { color: theme.colors.textTertiary }]}>
+              Nothing logged yet. Tap + to add an entry.
+            </Text>
+          </WvCard>
+        }
+      />
+
+      {error && (
+        <Text style={[styles.error, { color: theme.colors.error }]}>
+          {error}
+        </Text>
+      )}
+
+      <FloatingAddButton onPress={() => sheetRef.current?.present()} />
+      <LogEntryBottomSheet ref={sheetRef} onSaved={loadData} />
     </SafeScreen>
   );
 }
@@ -368,102 +341,70 @@ const styles = StyleSheet.create({
   },
   scroll: {
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingTop: 16,
     gap: 12,
   },
-  mealCard: {
-    overflow: 'hidden',
-  },
-  mealHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-  },
-  mealName: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  mealBudget: {
-    fontSize: 12,
-    marginTop: 2,
-  },
-  addButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  foodList: {
-    borderTopWidth: 1,
-  },
-  foodRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: 'transparent',
-  },
-  foodInfo: {
-    flex: 1,
-  },
-  foodName: {
-    fontSize: 15,
-    fontWeight: '500',
-  },
-  foodMeta: {
-    fontSize: 12,
-    marginTop: 2,
-  },
-  foodRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  foodKcal: {
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  editButton: {
-    padding: 4,
-  },
-  emptyRow: {
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderTopWidth: 1,
-  },
-  emptyText: {
-    fontSize: 13,
-  },
-  totalCard: {
-    padding: 16,
-    marginTop: 4,
-  },
-  totalLabel: {
-    fontSize: 12,
-    fontWeight: '500',
+  dateTitle: {
+    fontSize: 22,
+    fontWeight: '700',
     marginBottom: 16,
   },
-  totalRow: {
+  summaryCard: {
+    padding: 16,
+    marginBottom: 16,
+  },
+  summaryHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  totalItem: {
     alignItems: 'center',
-    gap: 4,
+    justifyContent: 'space-between',
+    marginBottom: 16,
   },
-  totalValue: {
+  summaryValue: {
+    fontSize: 28,
+    fontWeight: '700',
+  },
+  summaryUnit: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  summaryLabel: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  macroPills: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  macroPill: {
+    alignItems: 'center',
+  },
+  macroPillValue: {
     fontSize: 16,
     fontWeight: '700',
   },
-  totalUnit: {
+  macroPillUnit: {
     fontSize: 10,
   },
+  progressBar: {
+    marginTop: 4,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 12,
+  },
+  emptyCard: {
+    padding: 24,
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 14,
+    textAlign: 'center',
+  },
   error: {
-    marginTop: 8,
+    position: 'absolute',
+    bottom: 100,
+    left: 20,
+    right: 20,
   },
 });

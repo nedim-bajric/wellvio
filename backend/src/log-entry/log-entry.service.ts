@@ -6,6 +6,7 @@ import { startOfDayUtc } from '../common/date.util.js';
 import { LOG_ENTRY_REPOSITORY } from './log-entry.repository.js';
 import type { LogEntryRepository } from './log-entry.repository.js';
 import { LogEntryNotFoundError } from './log-entry-not-found.error.js';
+import { LogEntryDeletePastError } from './log-entry-delete-past.error.js';
 import { FoodNotFoundError } from '../food/food-not-found.error.js';
 import {
   CreateLogEntryData,
@@ -42,6 +43,10 @@ function subtractNutrients(a: Nutrients, b: Nutrients): Nutrients {
 
 function round(value: number): number {
   return Math.round(value * 10) / 10;
+}
+
+function isToday(date: Date): boolean {
+  return startOfDayUtc(date).getTime() === startOfDayUtc(new Date()).getTime();
 }
 
 @Injectable()
@@ -98,6 +103,9 @@ export class LogEntryService {
     const existing = await this.repository.findOne(userId, id);
     if (!existing) {
       throw new LogEntryNotFoundError(id);
+    }
+    if (!isToday(existing.loggedAt)) {
+      throw new LogEntryDeletePastError(id);
     }
     await this.repository.remove(userId, id);
   }

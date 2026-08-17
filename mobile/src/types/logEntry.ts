@@ -18,11 +18,12 @@ export interface LogEntry {
 }
 
 export interface CreateLogEntryData {
-  foodId: string;
+  foodId?: string;
   grams: number;
   mealSlot: MealSlot;
   loggedAt?: string;
   nutrients?: Nutrients;
+  title?: string;
 }
 
 export type UpdateLogEntryData = Partial<CreateLogEntryData>;

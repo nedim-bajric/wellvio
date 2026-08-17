@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -34,7 +34,12 @@ export function FoodForm({ initial, onSubmit, onCancel }: FoodFormProps) {
     initial?.nutrientsPer100g.fat.toString() ?? '',
   );
 
+  const isValid = useMemo(() => name.trim().length > 0, [name]);
+
   const handleSubmit = () => {
+    if (!isValid) {
+      return;
+    }
     onSubmit({
       name: name.trim(),
       nutrientsPer100g: {
@@ -85,7 +90,7 @@ export function FoodForm({ initial, onSubmit, onCancel }: FoodFormProps) {
       />
       <View style={styles.buttonRow}>
         <Button title="Cancel" onPress={onCancel} />
-        <Button title="Save" onPress={handleSubmit} />
+        <Button title="Save" onPress={handleSubmit} disabled={!isValid} />
       </View>
     </View>
   );

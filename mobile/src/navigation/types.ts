@@ -1,5 +1,3 @@
-import type { MealSlot } from '../types/logEntry';
-
 export type AuthStackParamList = {
   Splash: undefined;
   Welcome: undefined;
@@ -23,21 +21,6 @@ export type MainTabParamList = {
   Activity: undefined;
   Health: undefined;
   Profile: undefined;
-};
-
-export type HomeStackParamList = {
-  HomeMain: undefined;
-  WeightLog: undefined;
-  AddFood: undefined;
-  FoodDetail: undefined;
-  QuickAdd: undefined;
-};
-
-export type DiaryStackParamList = {
-  DiaryMain: undefined;
-  AddFood: undefined;
-  FoodDetail: undefined;
-  QuickAdd: undefined;
 };
 
 export type ActivityStackParamList = {
@@ -71,9 +54,6 @@ export type RootStackParamList = {
   Onboarding: undefined;
   Main: undefined;
   CreatePlan: { returnToMain?: boolean } | undefined;
-  AddFood: { mealSlot?: MealSlot } | undefined;
-  FoodDetail: { foodId: string; mealSlot?: MealSlot };
-  QuickAdd: { mealSlot?: MealSlot } | undefined;
   FoodCatalog: undefined;
   WeightLog: undefined;
   LogWorkout: undefined;

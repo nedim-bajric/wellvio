@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -7,21 +8,28 @@ import {
   RefreshControl,
   TouchableOpacity,
   useWindowDimensions,
+  Alert,
 } from 'react-native';
-import Svg, { Circle, Text as SvgText } from 'react-native-svg';
-import { ChevronRight, Plus, TrendingDown } from 'lucide-react-native';
+import Svg, { Circle } from 'react-native-svg';
+import { ChevronRight, TrendingDown } from 'lucide-react-native';
 import { WvMacroChip } from '../../components/ui/WvMacroChip';
 import { WvCard } from '../../components/ui/WvCard';
 import { WvSectionHeader } from '../../components/ui/WvSectionHeader';
 import { WvProgressBar } from '../../components/ui/WvProgressBar';
 import { SafeScreen, useTabBarPadding } from '../../components/SafeScreen';
+import { FloatingAddButton } from '../../components/FloatingAddButton';
+import {
+  LogEntryBottomSheet,
+  type LogEntryBottomSheetRef,
+} from '../../components/LogEntryBottomSheet';
+import { LogEntryListItem } from '../../components/LogEntryListItem';
 import { useTheme } from '../../theme/index';
-import { logEntryApi } from '../../api/logEntryApi';
+import { logEntryApi, isToday } from '../../api/logEntryApi';
 import { getErrorMessage } from '../../utils/errorMessage';
 import { formatToday } from '../../utils/date';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
-import type { DailyDashboard, LogEntry, MealSlot } from '../../types/logEntry';
+import type { DailyDashboard, LogEntry } from '../../types/logEntry';
 import type { Plan } from '../../types/weight';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { CompositeNavigationProp } from '@react-navigation/native';
@@ -36,13 +44,6 @@ type HomeScreenNavigationProp = CompositeNavigationProp<
 interface HomeScreenProps {
   navigation: HomeScreenNavigationProp;
 }
-
-const slotBudgetRatios: Record<MealSlot, number> = {
-  breakfast: 0.25,
-  lunch: 0.35,
-  dinner: 0.35,
-  snacks: 0.05,
-};
 
 function formatDateLabel(date: Date): string {
   return date.toLocaleDateString('en-US', {
@@ -73,6 +74,7 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
   const { width } = useWindowDimensions();
   const tabBarPadding = useTabBarPadding();
   const { user } = useAuth();
+  const sheetRef = useRef<LogEntryBottomSheetRef>(null);
   const [dashboard, setDashboard] = useState<DailyDashboard | null>(null);
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [activePlan, setActivePlan] = useState<Plan | null>(null);
@@ -145,9 +147,36 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
     }
   }, [loadActivePlan]);
 
-  useEffect(() => {
-    void loadData();
-  }, [loadData]);
+  useFocusEffect(
+    useCallback(() => {
+      void loadData();
+    }, [loadData]),
+  );
+
+  const handleDeleteEntry = useCallback(
+    (entry: LogEntry) => {
+      if (!isToday(entry.loggedAt)) {
+        Alert.alert('You can only delete today’s entries');
+        return;
+      }
+      Alert.alert('Delete entry', `Delete "${entry.foodName}"?`, [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await logEntryApi.remove(entry.id);
+              await loadData();
+            } catch (err) {
+              Alert.alert('Error', getErrorMessage(err, 'Failed to delete entry'));
+            }
+          },
+        },
+      ]);
+    },
+    [loadData],
+  );
 
   const totals = dashboard?.totals ?? {
     calories: 0,
@@ -176,16 +205,6 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
   const carbsProgress = targets.carbs > 0 ? totals.carbs / targets.carbs : 0;
   const fatProgress = targets.fat > 0 ? totals.fat / targets.fat : 0;
 
-  const entriesBySlot: Record<MealSlot, LogEntry[]> = {
-    breakfast: [],
-    lunch: [],
-    dinner: [],
-    snacks: [],
-  };
-  entries.forEach((entry) => {
-    entriesBySlot[entry.mealSlot].push(entry);
-  });
-
   const ringSize = Math.min(width - 80, 260);
   const center = ringSize / 2;
   const outerR = ringSize * 0.42;
@@ -197,12 +216,15 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
   const innerC = 2 * Math.PI * innerR;
   const fatC = 2 * Math.PI * fatR;
 
+  const recentEntries = entries.slice(0, 3);
+  const hasMoreEntries = entries.length > 3;
+
   return (
     <SafeScreen hasTabBar>
       <ScrollView
         contentContainerStyle={[
           styles.scroll,
-          { paddingBottom: tabBarPadding },
+          { paddingBottom: tabBarPadding + 96 },
         ]}
         refreshControl={
           <RefreshControl refreshing={loading} onRefresh={loadData} />
@@ -217,21 +239,6 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
               {getGreeting()}
             </Text>
           </View>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Profile')}
-            style={styles.avatar}
-          >
-            <View
-              style={[
-                styles.avatarGradient,
-                {
-                  backgroundColor: theme.colors.primary,
-                },
-              ]}
-            >
-              <Text style={styles.avatarText}>{getInitials()}</Text>
-            </View>
-          </TouchableOpacity>
         </View>
 
         {activePlan === null && (
@@ -434,7 +441,7 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
           >
             <TrendingDown size={18} color={theme.colors.primary} />
             <Text style={[styles.insightText, { color: theme.colors.textPrimary }]}>
-              You&apos;re on track to hit your weekly goal. Keep it up!
+              You're on track to hit your weekly goal. Keep it up!
             </Text>
           </View>
         </View>
@@ -447,121 +454,40 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
 
         <View style={styles.mealsSection}>
           <WvSectionHeader
-            title="Today's meals"
+            title="Today's food"
             actionLabel="View diary"
             onAction={() => navigation.navigate('Diary')}
           />
 
-          {dashboard?.mealSlots.map((slot) => {
-            const budget = Math.round(caloriesTarget * slotBudgetRatios[slot.mealSlot]);
-            const consumed = Math.round(slot.nutrients.calories);
-            const slotEntries = entriesBySlot[slot.mealSlot];
-            const progress = budget > 0 ? consumed / budget : 0;
-            const over = consumed > budget;
-
-            return (
-              <WvCard key={slot.mealSlot} style={styles.mealCard}>
-                <View style={styles.mealHeader}>
-                  <View>
-                    <Text
-                      style={[
-                        styles.mealName,
-                        { color: theme.colors.textPrimary },
-                      ]}
-                    >
-                      {slot.mealSlot.charAt(0).toUpperCase() + slot.mealSlot.slice(1)}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.mealBudget,
-                        { color: theme.colors.textTertiary },
-                      ]}
-                    >
-                      {consumed} / {budget} kcal
-                    </Text>
-                  </View>
-                  <View style={styles.mealActions}>
-                    <TouchableOpacity
-                      onPress={() => navigation.navigate('Diary')}
-                      style={[
-                        styles.viewAllButton,
-                        { backgroundColor: theme.colors.input },
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.viewAllText,
-                          { color: theme.colors.textSecondary },
-                        ]}
-                      >
-                        View all
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() =>
-                        navigation.navigate('AddFood', {
-                          mealSlot: slot.mealSlot,
-                        })
-                      }
-                      style={[
-                        styles.addButton,
-                        { backgroundColor: theme.colors.primary },
-                      ]}
-                    >
-                      <Plus size={16} color="#000000" />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                <WvProgressBar
-                  progress={progress}
-                  color={over ? theme.colors.red : theme.colors.primary}
-                  bgColor={theme.colors.border}
-                  height={6}
-                  style={styles.mealProgress}
+          {recentEntries.length === 0 ? (
+            <WvCard style={styles.emptyCard}>
+              <Text style={[styles.emptyText, { color: theme.colors.textTertiary }]}>
+                Nothing logged yet. Tap + to add your first entry.
+              </Text>
+            </WvCard>
+          ) : (
+            <WvCard style={styles.entriesCard}>
+              {recentEntries.map((entry) => (
+                <LogEntryListItem
+                  key={entry.id}
+                  entry={entry}
+                  compact
+                  onPress={() => sheetRef.current?.presentForEdit(entry)}
+                  onLongPress={() => handleDeleteEntry(entry)}
                 />
-
-                {slotEntries.length === 0 ? (
-                  <Text
-                    style={[
-                      styles.emptyMeal,
-                      { color: theme.colors.textTertiary },
-                    ]}
-                  >
-                    Nothing logged yet
+              ))}
+              {hasMoreEntries && (
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Diary')}
+                  style={styles.moreRow}
+                >
+                  <Text style={[styles.moreText, { color: theme.colors.primary }]}>
+                    +{entries.length - 3} more
                   </Text>
-                ) : (
-                  <View style={styles.foodList}>
-                    {slotEntries.slice(0, 3).map((entry) => (
-                      <View key={entry.id} style={styles.foodRow}>
-                        <Text
-                          style={[
-                            styles.foodName,
-                            { color: theme.colors.textSecondary },
-                          ]}
-                        >
-                          {entry.foodName}
-                        </Text>
-                        <Text
-                          style={[
-                            styles.foodKcal,
-                            { color: theme.colors.textPrimary },
-                          ]}
-                        >
-                          {Math.round(entry.nutrients.calories)} kcal
-                        </Text>
-                      </View>
-                    ))}
-                    {slotEntries.length > 3 && (
-                      <Text style={[styles.moreText, { color: theme.colors.primary }]}>
-                        +{slotEntries.length - 3} more
-                      </Text>
-                    )}
-                  </View>
-                )}
-              </WvCard>
-            );
-          })}
+                </TouchableOpacity>
+              )}
+            </WvCard>
+          )}
         </View>
 
         <TouchableOpacity
@@ -586,7 +512,7 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
                       { color: theme.colors.textPrimary },
                     ]}
                   >
-                    Log today&apos;s weight
+                    Log today's weight
                   </Text>
                   <Text
                     style={[
@@ -603,6 +529,9 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
           </WvCard>
         </TouchableOpacity>
       </ScrollView>
+
+      <FloatingAddButton onPress={() => sheetRef.current?.present()} />
+      <LogEntryBottomSheet ref={sheetRef} onSaved={loadData} />
     </SafeScreen>
   );
 }
@@ -721,69 +650,24 @@ const styles = StyleSheet.create({
   mealsSection: {
     marginBottom: 8,
   },
-  mealCard: {
-    padding: 16,
-    marginBottom: 12,
-  },
-  mealHeader: {
-    flexDirection: 'row',
+  emptyCard: {
+    padding: 24,
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 12,
   },
-  mealName: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  mealBudget: {
-    fontSize: 12,
-    marginTop: 2,
-  },
-  mealActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  viewAllButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-  },
-  viewAllText: {
-    fontSize: 12,
-  },
-  addButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  mealProgress: {
-    marginBottom: 12,
-  },
-  emptyMeal: {
-    fontSize: 13,
+  emptyText: {
+    fontSize: 14,
     textAlign: 'center',
-    paddingVertical: 4,
   },
-  foodList: {
-    gap: 4,
+  entriesCard: {
+    overflow: 'hidden',
   },
-  foodRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  foodName: {
-    fontSize: 13,
-  },
-  foodKcal: {
-    fontSize: 13,
-    fontWeight: '500',
+  moreRow: {
+    paddingVertical: 12,
+    alignItems: 'center',
   },
   moreText: {
-    fontSize: 11,
-    marginTop: 2,
+    fontSize: 13,
+    fontWeight: '600',
   },
   weightPrompt: {
     marginTop: 4,
