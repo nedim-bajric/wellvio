@@ -2,7 +2,7 @@
 
 ## Context
 
-v0 of wellvio needs a mobile client so users can log food, view their dashboard, and manage their food catalog on the go. The backend is a NestJS API, so the mobile app is a separate client that communicates over HTTPS.
+wellvio needs a mobile client so users can log food, view their dashboard, and manage their food catalog on the go. The mobile app talks directly to Supabase for Diet data and auth. A backend may be introduced later if server-side logic is needed.
 
 ## Decision
 
@@ -17,7 +17,7 @@ We will build the mobile client with **React Native** and **Expo**.
 
 ## Consequences
 
-- The mobile app lives in a top-level `mobile/` directory next to `backend/`.
+- The mobile app lives in a top-level `mobile/` directory.
 - Backend API contracts are shared informally via TypeScript types; we will keep DTOs simple to ease client implementation.
 - Expo's managed workflow gives us fast iteration and simple builds, with an escape hatch to the bare workflow if we later need custom native modules.
 - We accept the Expo/runtime version upgrade cadence as a regular maintenance task.

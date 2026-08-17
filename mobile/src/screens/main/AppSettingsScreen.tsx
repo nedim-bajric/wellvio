@@ -103,7 +103,7 @@ export function AppSettingsScreen({ navigation }: AppSettingsScreenProps) {
           onPress={() => {
             Alert.alert(
               'Delete account',
-              'This will sign you out and clear local data on this device. Full account deletion must be done from the Supabase dashboard until a backend deletion endpoint is built. Are you sure?',
+              'This will sign you out and clear local data on this device. Full account deletion is available from your profile. Are you sure?',
               [
                 { text: 'Cancel', style: 'cancel' },
                 {

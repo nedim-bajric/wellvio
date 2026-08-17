@@ -6,7 +6,7 @@ Accepted — supersedes the diet-calculation scope described in [0003-supabase-a
 
 ## Context
 
-[ADR 0003](./0003-supabase-auth-mobile.md) kept the NestJS backend responsible for diet calculations and complex logic, with Supabase Auth used only for authentication. As the v0 diet module was implemented, several constraints made that split awkward:
+The original plan kept a NestJS backend responsible for diet calculations and complex logic, with Supabase Auth used only for authentication. As the v0 diet module was implemented, several constraints made that split awkward:
 
 - The mobile app needs to generate plans, render live options, and compute macro targets while the user is interacting with onboarding screens.
 - The mobile app needs to read and write food logs, weight logs, and the food catalog with low latency and without requiring the backend to be deployed.
@@ -23,11 +23,11 @@ For v0, the **Expo mobile app** owns diet calculations and persistence:
 - The mobile app reads and writes these tables directly via `@supabase/supabase-js`.
 - The active plan pointer on `profiles.active_plan_id` is maintained by the mobile app.
 
-The NestJS backend retains its existing diet modules for compatibility, but the v0 mobile client does not call them.
+The v0 mobile client does not use a backend for diet features.
 
 ## Consequences
 
-- v0 diet features work against Supabase alone; the backend does not need to be running.
+- v0 diet features work against Supabase alone; no backend is required.
 - RLS policies must be kept in sync with the mobile client’s queries.
 - A future phase may reintroduce backend diet endpoints (e.g., for admin, sharing, or server-side validation) without changing the mobile schema.
 - Diet calculation unit tests live in the mobile codebase alongside the calculation functions.

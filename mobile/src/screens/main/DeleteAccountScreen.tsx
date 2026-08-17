@@ -15,7 +15,6 @@ import { SafeScreen } from '../../components/SafeScreen';
 import { useTheme } from '../../theme/index';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
-import { accountApi } from '../../api/accountApi';
 import { MIN_PASSWORD_LENGTH } from '../../constants/auth';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
@@ -55,14 +54,6 @@ export function DeleteAccountScreen({ navigation }: DeleteAccountScreenProps) {
     if (signInError) {
       setLoading(false);
       setError('Password is incorrect.');
-      return;
-    }
-
-    try {
-      await accountApi.delete();
-    } catch (apiError) {
-      setLoading(false);
-      setError(apiError instanceof Error ? apiError.message : 'Failed to wipe account data.');
       return;
     }
 
