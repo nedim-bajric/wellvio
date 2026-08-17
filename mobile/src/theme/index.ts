@@ -1,7 +1,9 @@
-import { useColorScheme } from 'react-native';
 import { getColors, type ThemeColors, type ThemeMode } from './colors';
 import { fontSizes, fontWeights, lineHeights } from './typography';
 import { spacing, radii } from './spacing';
+import { useThemeMode } from './ThemeProvider';
+
+export { ThemeProvider, useThemeMode } from './ThemeProvider';
 
 export interface Theme {
   mode: ThemeMode;
@@ -14,8 +16,8 @@ export interface Theme {
 }
 
 export function useTheme(): Theme {
-  const colorScheme = useColorScheme();
-  const mode: ThemeMode = colorScheme === 'dark' ? 'dark' : 'light';
+  const { mode } = useThemeMode();
+
   return {
     mode,
     colors: getColors(mode),

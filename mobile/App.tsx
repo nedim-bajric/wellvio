@@ -4,7 +4,7 @@ import { Toaster } from 'sonner-native';
 import { OnboardingProvider } from './src/contexts/OnboardingContext';
 import { AuthProvider } from './src/contexts/AuthContext';
 import { RootNavigator } from './src/navigation/RootNavigator';
-import { useTheme } from './src/theme/index';
+import { ThemeProvider, useTheme } from './src/theme/index';
 
 function AppContent() {
   const theme = useTheme();
@@ -56,11 +56,13 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <AuthProvider>
-          <OnboardingProvider>
-            <AppContent />
-          </OnboardingProvider>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <OnboardingProvider>
+              <AppContent />
+            </OnboardingProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
